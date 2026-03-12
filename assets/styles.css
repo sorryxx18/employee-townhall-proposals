@@ -231,3 +231,42 @@
       .history-table td:nth-child(3)::before { content: "✅ 辦理結果："; font-weight: 900; color: var(--text-main); display: block; margin-top: 20px; margin-bottom: 8px; padding-top: 20px; border-top: 2px dashed var(--border); }
       .history-table td:nth-child(3) { color: var(--text-muted); }
     }
+
+/* ===== 首屏 CTA（桌機/手機各半） ===== */
+.heroActions{ margin-top:18px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+.btnHeroCta{ padding:14px 22px; font-size:18px; }
+.btnHeroGhost{ padding:14px 22px; font-size:18px; text-decoration:none; }
+
+/* 讓錨點跳轉不被 sticky topbar 擋住 */
+#formSection{ scroll-margin-top: 96px; }
+
+/* ===== Responsive：降低手機滑動成本 ===== */
+@media (max-width: 768px){
+  body{ font-size:16px; }
+  .container{ width:min(980px, 92vw); }
+  .heroCard{ height: 420px; }
+  .heroText{ bottom: 30px; padding: 0 18px; }
+  .heroText .title{ padding: 26px 22px; }
+  .heroText h1{ font-size: 32px; }
+  .heroText p{ font-size: 18px; }
+  .intro-grid{ grid-template-columns: 1fr; }
+  .section{ padding: 34px 22px; }
+  label{ margin: 22px 0 10px; font-size: 18px; }
+  input[type="text"], textarea{ padding: 16px 18px; font-size: 16px; }
+  .radio-label{ padding: 16px; font-size: 16px; }
+}
+
+@media (max-width: 480px){
+  .heroCard{ height: 360px; }
+  .heroText h1{ font-size: 26px; }
+  .heroText p{ font-size: 16px; }
+  .heroActions{ gap: 10px; }
+  .btnHeroCta, .btnHeroGhost{ width: 100%; }
+  .section{ padding: 26px 16px; }
+  label{ margin: 16px 0 8px; }
+  .radio-group{ flex-direction: column; }
+  .form-row{ display: grid; grid-template-columns: 1fr; gap: 12px; }
+  #decisionZone{ grid-template-columns: 1fr !important; }
+  .topbar{ padding: 12px 0; }
+}
+

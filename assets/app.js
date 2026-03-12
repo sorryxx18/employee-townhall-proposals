@@ -6,6 +6,19 @@
     
     document.getElementById('today').textContent = `📅 ${new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'2-digit', day:'2-digit'})}`;
 
+    // 首屏 CTA：平滑捲動到表單
+    const startBtn = document.getElementById('startFillBtn');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        const el = document.getElementById('formSection');
+        if (!el) return;
+        const topbar = document.querySelector('.topbar');
+        const offset = topbar ? topbar.offsetHeight + 12 : 12;
+        const y = el.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      });
+    }
+
     function toggleId(s) { document.getElementById('identitySection').style.display = s ? 'block' : 'none'; }
 
     // 音效產生器：模擬真實消防車/救護車警笛 (Web Audio API)
