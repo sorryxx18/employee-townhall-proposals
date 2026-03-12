@@ -270,3 +270,28 @@
   .topbar{ padding: 12px 0; }
 }
 
+/* ===== 表單進度條（純視覺，不暴露內部運作） ===== */
+.form-stepper{ margin-top:18px; }
+.form-stepper ol{ list-style:none; display:flex; gap:14px; padding:0; margin:0; justify-content:space-between; }
+.form-stepper .step{ flex:1; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 10px; border-radius:999px; background: rgba(255, 123, 84, 0.08); color: var(--text-muted); border: 1px solid rgba(255, 123, 84, 0.18); font-weight:800; font-size:14px; letter-spacing: .2px; }
+.form-stepper .step .dot{ width:10px; height:10px; border-radius:50%; background: rgba(255, 123, 84, 0.35); box-shadow: 0 0 0 4px rgba(255, 123, 84, 0.10); }
+.form-stepper .step .muted{ font-weight:700; opacity:.75; }
+.form-stepper .step.is-active{ background: rgba(255, 123, 84, 0.16); color: var(--text-main); border-color: rgba(255, 123, 84, 0.30); }
+.form-stepper .step.is-active .dot{ background: var(--primary); box-shadow: 0 0 0 6px rgba(255, 123, 84, 0.18); }
+
+.form-block{ padding-top: 6px; }
+.form-note{ margin-top: 10px; color: var(--text-muted); font-size: 15px; }
+
+/* ===== Inline 驗證錯誤 ===== */
+.field-error{ margin-top:10px; color: var(--danger); font-weight: 800; font-size: 15px; }
+.is-invalid{ border-color: var(--danger) !important; box-shadow: 0 10px 25px rgba(231, 76, 60, 0.12) !important; }
+
+@media (max-width: 768px){
+  .form-stepper ol{ gap: 10px; }
+  .form-stepper .step{ padding: 10px 10px; font-size: 13px; }
+}
+@media (max-width: 480px){
+  .form-stepper ol{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-stepper .step{ justify-content:flex-start; }
+}
+

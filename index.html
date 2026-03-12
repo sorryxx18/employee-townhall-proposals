@@ -12,8 +12,8 @@
   <!-- 載入中動畫 -->
   <div id="loadingOverlay">
     <div class="spinner"></div>
-    <div style="font-weight:900; font-size:24px; color:var(--text-main); padding:0 20px; text-align:center;">正在比對歷次座談會紀錄... </div>
-    <div style="color:var(--text-muted); font-size:18px; margin-top:10px;">系統比對約需 10–15 秒，請稍候</div>
+    <div style="font-weight:900; font-size:24px; color:var(--text-main); padding:0 20px; text-align:center;">正在查詢歷次座談會紀錄... </div>
+    <div style="color:var(--text-muted); font-size:18px; margin-top:10px;">系統查詢約需 10–15 秒，請稍候</div>
   </div>
 
   <div id="sirenOverlay"></div>
@@ -61,9 +61,18 @@
     <section class="section" id="formSection">
       <div class="section-title">
         <h2>填寫您的提案</h2>
-        <p>💡 送出後，系統將自動為您比對歷年相似紀錄</p>
+        <p>💡 送出後，系統將自動為您查詢歷年相關紀錄</p>
       </div>
       
+
+      <nav class="form-stepper" aria-label="填寫進度">
+        <ol>
+          <li class="step is-active" data-step="identity"><span class="dot"></span><span class="label">基本資料</span></li>
+          <li class="step" data-step="content"><span class="dot"></span><span class="label">提案內容</span></li>
+          <li class="step" data-step="attachments"><span class="dot"></span><span class="label">附件</span><span class="muted">（選填）</span></li>
+          <li class="step" data-step="confirm"><span class="dot"></span><span class="label">確認送出</span></li>
+        </ol>
+      </nav>
       <label>1. 請問提案是否具名？ <span class="required">*</span></label>
       <div class="radio-group">
         <label class="radio-label"><input type="radio" name="identity" value="named" checked onclick="toggleId(true)"> ✏️ 記名反映</label>
@@ -79,12 +88,17 @@
         </div>
       </div>
 
+      <div id="contentSection" class="form-block">
       <label>5. 建議事項 <span class="required">*</span></label>
       <textarea id="suggestion" rows="6" placeholder="請詳細說明您在實務上觀察到的問題或建議..."></textarea>
+      <div class="field-error" id="suggestionError" role="alert" aria-live="polite"></div>
 
       <label>6. 具體事證 / 建議方案 <span class="required">*</span></label>
       <textarea id="evidence" rows="4" placeholder="請列出具體數據、相關公文或您心目中的解決方案（必填）"></textarea>
+      <div class="field-error" id="evidenceError" role="alert" aria-live="polite"></div>
+      </div>
 
+      <div id="attachmentsSection" class="form-block">
       <label>7. 附件 (選填)</label>
       
       <!-- 替換：真實的拖拉上傳區域 -->
@@ -96,12 +110,13 @@
       </div>
       <!-- 顯示已選取檔案的列表 -->
       <div id="fileList" style="margin-top: 15px; font-size: 17px; color: var(--deep-brown); font-weight: 500;"></div>
+      </div>
 
-      <button class="btn btnPrimary" id="submitBtn" onclick="handleInitialSubmit()">💌 進行比對與送出</button>
+      <button class="btn btnPrimary" id="submitBtn" onclick="handleInitialSubmit()">💌 進行查詢與送出</button>
 
-      <!-- 比對結果 (預設隱藏) -->
+      <!-- 查詢結果 (預設隱藏) -->
       <div class="hint" id="dupHint">
-        <div class="hint-title">📌 歷次座談會相似紀錄比對結果</div>
+        <div class="hint-title">📌 歷次座談會相關紀錄查詢結果</div>
         <div id="aiSummary" class="hint-text"></div>
         <div class="table-wrapper"><div id="historyTable"></div></div>
         
@@ -114,7 +129,7 @@
       <!-- 最終確認框 -->
       <div id="finalConfirmCard">
           <div style="font-size:34px; font-weight:900; color:var(--danger); margin-bottom:15px;">📢 最後確認</div>
-          <p style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統比對發現已有高度相似的歷年紀錄。<br>建議您參閱辦理結果，避免重複提案浪費行政資源。</p>
+          <p style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統查詢發現已有高度相似的歷年紀錄。<br>建議您參閱辦理結果，避免重複提案浪費行政資源。</p>
           <button class="btn btn-giveup" onclick="window.location.reload()">✅ 了解，我不送出了</button>
           <div style="margin-top:20px;">
              <button class="btn btn-force" onclick="finalSave()">⚠️ 我已確認這是全新事證，正式存檔</button>

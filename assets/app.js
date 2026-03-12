@@ -19,7 +19,128 @@
       });
     }
 
+    // ===== 進度條（依捲動高亮） =====
+    function setupFormStepper() {
+      const steps = Array.from(document.querySelectorAll('.form-stepper .step'));
+      if (!steps.length) return;
+
+      const map = {
+        identity: document.getElementById('identitySection'),
+        content: document.getElementById('contentSection'),
+        attachments: document.getElementById('attachmentsSection'),
+        confirm: document.getElementById('confirmSection'),
+      };
+
+      const targets = Object.entries(map).filter(([,el]) => !!el);
+      if (!targets.length) return;
+
+      const activate = (key) => {
+        steps.forEach(s => s.classList.toggle('is-active', s.dataset.step === key));
+      };
+
+      // 點擊 step：捲到對應區塊（體驗加分）
+      steps.forEach(sEl => {
+        sEl.addEventListener('click', () => {
+          const key = sEl.dataset.step;
+          const el = map[key];
+          if (!el) return;
+          const topbar = document.querySelector('.topbar');
+          const offset = topbar ? topbar.offsetHeight + 12 : 12;
+          const y = el.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        });
+      });
+
+      const io = new IntersectionObserver((entries) => {
+        // 找出目前最靠上的可視區塊
+        const visible = entries.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio);
+        if (!visible.length) return;
+        const el = visible[0].target;
+        const key = targets.find(([,t]) => t === el)?.[0];
+        if (key) activate(key);
+      }, {
+        root: null,
+        threshold: [0.2, 0.35, 0.5, 0.65],
+      });
+
+      targets.forEach(([,el]) => io.observe(el));
+    }
+
+    setupFormStepper();
+
     function toggleId(s) { document.getElementById('identitySection').style.display = s ? 'block' : 'none'; }
+
+
+    // ===== 表單驗證（中性文案） =====
+    function setFieldError(inputEl, errorEl, message) {
+      if (errorEl) errorEl.textContent = message || "";
+      if (inputEl) {
+        if (message) inputEl.classList.add('is-invalid');
+        else inputEl.classList.remove('is-invalid');
+      }
+    }
+
+    function clearAllErrors() {
+      setFieldError(document.getElementById('suggestion'), document.getElementById('suggestionError'), '');
+      setFieldError(document.getElementById('evidence'), document.getElementById('evidenceError'), '');
+      const idErr = document.getElementById('identityError');
+      if (idErr) idErr.textContent = '';
+      ['dept','jobTitle','userName'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('is-invalid');
+      });
+    }
+
+    function validateForm() {
+      clearAllErrors();
+
+      const identityValue = document.querySelector('input[name="identity"]:checked')?.value;
+      const isNamed = identityValue === 'named';
+
+      const dept = document.getElementById('dept');
+      const jobTitle = document.getElementById('jobTitle');
+      const userName = document.getElementById('userName');
+      const suggestion = document.getElementById('suggestion');
+      const evidence = document.getElementById('evidence');
+
+      let firstBad = null;
+
+      if (isNamed) {
+        const d = (dept?.value || '').trim();
+        const j = (jobTitle?.value || '').trim();
+        const u = (userName?.value || '').trim();
+        const idErr = document.getElementById('identityError');
+        if (!d || !j || !u) {
+          if (idErr) idErr.textContent = '請完整填寫「單位 / 職稱 / 姓名」。';
+          if (!d) dept?.classList.add('is-invalid');
+          if (!j) jobTitle?.classList.add('is-invalid');
+          if (!u) userName?.classList.add('is-invalid');
+          firstBad = dept || jobTitle || userName;
+        }
+      }
+
+      const q = (suggestion?.value || '').trim();
+      const e = (evidence?.value || '').trim();
+      if (!q) {
+        setFieldError(suggestion, document.getElementById('suggestionError'), '請填寫「建議事項」。');
+        firstBad = firstBad || suggestion;
+      }
+      if (!e) {
+        setFieldError(evidence, document.getElementById('evidenceError'), '請填寫「具體事證 / 建議方案」。');
+        firstBad = firstBad || evidence;
+      }
+
+      if (firstBad) {
+        const topbar = document.querySelector('.topbar');
+        const offset = topbar ? topbar.offsetHeight + 12 : 12;
+        const y = firstBad.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+        setTimeout(() => firstBad.focus({ preventScroll: true }), 250);
+        return false;
+      }
+
+      return true;
+    }
 
     // 音效產生器：模擬真實消防車/救護車警笛 (Web Audio API)
     function playFireSiren() {
@@ -62,9 +183,7 @@
 
     // 第一階段：送出比對
     async function handleInitialSubmit() {
-      const q = document.getElementById('suggestion').value.trim();
-      const e = document.getElementById('evidence').value.trim();
-      if (!q || !e) return alert("「建議事項」與「具體事證」皆為必填項目喔！");
+      if (!validateForm()) return;
 
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
