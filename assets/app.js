@@ -1,5 +1,8 @@
     // ⚠️ 務必替換此網址為您的 GAS 部署網址
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbw1xL09BkHPxdFE8YVi7BJ9wukbqLbHLdx3bEVFg1VUndWm_x_Dc591fKI4h0EdSm8i/exec";
+    const GAS_URL = (window.APP_CONFIG && window.APP_CONFIG.GAS_URL) ? window.APP_CONFIG.GAS_URL : "";
+    if (!GAS_URL) {
+      console.warn("APP_CONFIG.GAS_URL 未設定，請檢查 assets/config.js");
+    }
     
     document.getElementById('today').textContent = `📅 ${new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'2-digit', day:'2-digit'})}`;
 
