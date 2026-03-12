@@ -2,7 +2,7 @@
 
 這個專案是一個可直接部署到 **GitHub Pages** 的靜態網站，用來收集「員工座談會/提案」並透過 Google Apps Script (GAS) 做後端儲存與相似紀錄比對。
 
-> 備註：目前 repo 名稱仍是歷史遺跡 `Japanese-travel-`，但內容是「員工座談會提案平台」。之後若要改名我也可以一起處理。
+> 備註：此專案原本 repo 名稱是 `Japanese-travel-`（歷史遺跡），已改名為 `employee-townhall-proposals`。
 
 ## 專案結構
 
