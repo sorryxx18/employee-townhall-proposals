@@ -205,6 +205,32 @@
       }, 3200);
     }
 
+    // ===== GAS 呼叫（避免 CORS preflight + 防呆解析回應） =====
+    async function postToGas(action, payload) {
+      const res = await fetch(GAS_URL, {
+        method: "POST",
+        // 關鍵：用 text/plain 避免觸發 preflight（參照 facility-booking）
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action, ...payload })
+      });
+
+      const text = await res.text();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        json = { status: "error", message: "Non-JSON response", raw: text };
+      }
+
+      if (!res.ok) {
+        const err = new Error(`HTTP ${res.status}`);
+        err.response = json;
+        throw err;
+      }
+
+      return json;
+    }
+
     // 第一階段：送出比對
     async function handleInitialSubmit() {
       if (!validateForm()) return;
@@ -212,13 +238,14 @@
       const apiToken = ensureApiTokenOrAlert();
       if (!apiToken) return;
 
+      const q = (document.getElementById('suggestion')?.value || '').trim();
+
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
       document.getElementById('loadingOverlay').style.display = 'flex';
 
       try {
-        const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "query", query: q, token: apiToken }) });
-        const json = await res.json();
+        const json = await postToGas("query", { query: q, token: apiToken });
         document.getElementById('loadingOverlay').style.display = 'none';
 
         if (json.status === "success") {
@@ -235,7 +262,7 @@
             window.scrollTo({ top: document.getElementById('dupHint').offsetTop - 80, behavior: 'smooth' });
           } else {
             // 無重複，直接存檔
-            await finalSave();
+            await finalSave(apiToken);
           }
         }
       } catch (err) {
@@ -246,7 +273,7 @@
     }
 
     // 第二階段：最終存檔
-    async function finalSave() {
+    async function finalSave(apiToken) {
       document.getElementById('finalConfirmCard').style.display = 'none';
       document.getElementById('loadingOverlay').style.display = 'flex';
 
@@ -260,8 +287,7 @@
       };
 
       try {
-        const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "save", formData: formData, token: apiToken }) });
-        const json = await res.json();
+        const json = await postToGas("save", { formData: formData, token: apiToken });
         document.getElementById('loadingOverlay').style.display = 'none';
         
         if (json.status === "success") {
