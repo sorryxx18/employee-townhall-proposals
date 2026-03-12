@@ -231,79 +231,59 @@
       return json;
     }
 
-    // 第一階段：送出比對
-    async function handleInitialSubmit() {
+    // 第一階段：準備送出（改為整頁 POST，不使用 fetch，避免 CORS）
+    function handleInitialSubmit() {
       if (!validateForm()) return;
 
       const apiToken = ensureApiTokenOrAlert();
       if (!apiToken) return;
 
-      const q = (document.getElementById('suggestion')?.value || '').trim();
+      // 暫存 token，供最終存檔使用
+      window.__API_TOKEN__ = apiToken;
 
+      // 直接進入最終確認（保留原本儀式感）
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
-      document.getElementById('loadingOverlay').style.display = 'flex';
-
-      try {
-        const json = await postToGas("query", { query: q, token: apiToken });
-        document.getElementById('loadingOverlay').style.display = 'none';
-
-        if (json.status === "success") {
-          if (json.data.history && json.data.history.length > 0) {
-            document.getElementById('dupHint').style.display = 'block';
-            document.getElementById('aiSummary').innerText = json.data.summary;
-            let h = '<table class="history-table"><thead><tr><th style="width:18%">會議日期</th><th style="width:35%">訴求摘要</th><th style="width:47%">辦理結果</th></tr></thead><tbody>';
-            json.data.history.forEach(item => {
-              h += `<tr><td><b>${item.date}</b></td><td>${item.proposal}</td><td>${item.conclusion}</td></tr>`;
-            });
-            document.getElementById('historyTable').innerHTML = h + '</tbody></table>';
-            
-            btn.style.display = 'none';
-            window.scrollTo({ top: document.getElementById('dupHint').offsetTop - 80, behavior: 'smooth' });
-          } else {
-            // 無重複，直接存檔
-            await finalSave(apiToken);
-          }
-        }
-      } catch (err) {
-        document.getElementById('loadingOverlay').style.display = 'none';
-        console.error(err);
-        const detail = (err && err.response) ? JSON.stringify(err.response).slice(0,600) : String(err && err.message ? err.message : err);
-        alert("連線異常，請重試\n\n" + detail);
-        btn.disabled = false;
-      }
+      triggerSirenSequence();
     }
 
-    // 第二階段：最終存檔
-    async function finalSave(apiToken) {
+    // 第二階段：最終存檔（整頁送出，不使用 fetch）
+    function finalSave() {
+      const apiToken = (window.__API_TOKEN__ || '').trim();
+      if (!apiToken) {
+        alert("系統尚未完成設定（API_TOKEN 未填寫）。\n\n請聯絡管理者協助設定後再使用。");
+        return;
+      }
+
       document.getElementById('finalConfirmCard').style.display = 'none';
       document.getElementById('loadingOverlay').style.display = 'flex';
 
-      const formData = {
-        identity: document.querySelector('input[name="identity"]:checked').value,
-        dept: document.getElementById('dept').value,
-        jobTitle: document.getElementById('jobTitle').value,
-        userName: document.getElementById('userName').value,
-        suggestion: document.getElementById('suggestion').value,
-        evidence: document.getElementById('evidence').value
+      const payload = {
+        action: 'save',
+        token: apiToken,
+        identity: document.querySelector('input[name="identity"]:checked')?.value || '',
+        dept: document.getElementById('dept')?.value || '',
+        jobTitle: document.getElementById('jobTitle')?.value || '',
+        userName: document.getElementById('userName')?.value || '',
+        suggestion: document.getElementById('suggestion')?.value || '',
+        evidence: document.getElementById('evidence')?.value || '',
       };
 
-      try {
-        const json = await postToGas("save", { formData: formData, token: apiToken });
-        document.getElementById('loadingOverlay').style.display = 'none';
-        
-        if (json.status === "success") {
-          document.getElementById('formSection').style.display = 'none';
-          document.querySelector('.intro-grid').style.display = 'none';
-          document.getElementById('successBox').style.display = 'block';
-          window.scrollTo(0,0);
-        }
-      } catch (e) {
-        document.getElementById('loadingOverlay').style.display = 'none';
-        console.error(e);
-        const detail = (e && e.response) ? JSON.stringify(e.response).slice(0,600) : String(e && e.message ? e.message : e);
-        alert("存檔失敗，請檢查網路連線。\n\n" + detail);
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = GAS_URL;
+      form.acceptCharset = 'utf-8';
+
+      for (const [k, v] of Object.entries(payload)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = k;
+        input.value = String(v);
+        form.appendChild(input);
       }
+
+      document.body.appendChild(form);
+      form.submit();
     }
     // --- 新增：檔案點擊與拖拉互動邏輯 ---
     const dropZone = document.getElementById('dropZone');
