@@ -267,7 +267,9 @@
         }
       } catch (err) {
         document.getElementById('loadingOverlay').style.display = 'none';
-        alert("連線異常，請重試");
+        console.error(err);
+        const detail = (err && err.response) ? JSON.stringify(err.response).slice(0,600) : String(err && err.message ? err.message : err);
+        alert("連線異常，請重試\n\n" + detail);
         btn.disabled = false;
       }
     }
@@ -298,7 +300,9 @@
         }
       } catch (e) {
         document.getElementById('loadingOverlay').style.display = 'none';
-        alert("存檔失敗，請檢查網路連線。");
+        console.error(e);
+        const detail = (e && e.response) ? JSON.stringify(e.response).slice(0,600) : String(e && e.message ? e.message : e);
+        alert("存檔失敗，請檢查網路連線。\n\n" + detail);
       }
     }
     // --- 新增：檔案點擊與拖拉互動邏輯 ---
