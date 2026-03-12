@@ -4,5 +4,5 @@ window.APP_CONFIG = {
   // ⚠️ 務必替換此網址為您的 GAS 部署網址
   GAS_URL: "https://script.google.com/macros/s/AKfycbwihhmMn0cYgxmdlRBM2L-FZtvjIEh2o4BvpY21Pq30B2rZO3PRZaK9wz8-ZN-na6Ur/exec",
   // API_TOKEN：請填入 Apps Script 的 Script Properties（API_TOKEN）同一串
-  API_TOKEN: ""
+  API_TOKEN: "tfd-townhall-2026-03-12_9Jc4pR2kV7mL1sN8aZ0wY6uH4cD5eTQx"
 };
