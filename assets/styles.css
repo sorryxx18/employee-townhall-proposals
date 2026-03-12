@@ -57,8 +57,9 @@
     #sirenOverlay { position: fixed; inset: 0; pointer-events: none; z-index: 9999; display: none; }
     .siren-active { display: block !important; animation: sirenFlash 0.15s infinite alternate; }
     @keyframes sirenFlash {
-      0% { background: rgba(231, 76, 60, 0.25); }
-      100% { background: rgba(52, 152, 219, 0.25); }
+      0%   { background: rgba(231, 76, 60, 0.35); }
+      50%  { background: rgba(241, 196, 15, 0.18); }
+      100% { background: rgba(52, 152, 219, 0.35); }
     }
 
     .container { width: min(1080px, 92vw); margin: 0 auto; padding-bottom: 80px; }
@@ -294,4 +295,22 @@
   .form-stepper ol{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .form-stepper .step{ justify-content:flex-start; }
 }
+
+/* ===== 浮誇模式：警示燈 + 震動（僅用於最後確認） ===== */
+body.siren-shake { animation: pageShake 0.12s infinite; }
+@keyframes pageShake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(1px, -1px) rotate(-0.2deg); }
+  50% { transform: translate(-1px, 1px) rotate(0.2deg); }
+  75% { transform: translate(2px, 1px) rotate(-0.2deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+#sirenOverlay.siren-active {
+  mix-blend-mode: multiply;
+  box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.06);
+}
+
+/* Hero CTA 只有一顆時更俐落 */
+.heroActions{ justify-content:center; }
 

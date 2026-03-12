@@ -147,38 +147,48 @@
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      
-      osc.type = "sawtooth"; // 鋸齒波，聲音具穿透力
+
+      osc.type = "sawtooth";
       osc.connect(gain);
       gain.connect(ctx.destination);
-      
+
       const now = ctx.currentTime;
-      // 消防車音頻變化 (低->高->低)
-      osc.frequency.setValueAtTime(650, now);
-      osc.frequency.linearRampToValueAtTime(1100, now + 0.5);
-      osc.frequency.linearRampToValueAtTime(650, now + 1.0);
-      
-      gain.gain.setValueAtTime(0.2, now); // 設定適當音量
+
+      // 更浮誇：更大的頻率掃描 + 更明顯的音量包絡
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.linearRampToValueAtTime(1200, now + 0.45);
+      osc.frequency.linearRampToValueAtTime(680, now + 0.9);
+      osc.frequency.linearRampToValueAtTime(1320, now + 1.35);
+      osc.frequency.linearRampToValueAtTime(520, now + 1.8);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.28, now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.06, now + 0.9);
+      gain.gain.exponentialRampToValueAtTime(0.22, now + 1.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.9);
+
       osc.start(now);
-      osc.stop(now + 1.0);
+      osc.stop(now + 1.95);
     }
 
     // 觸發紅藍閃爍與音效
     function triggerSirenSequence() {
       const overlay = document.getElementById('sirenOverlay');
       overlay.classList.add('siren-active');
+      document.body.classList.add('siren-shake');
       
-      // 連續播放兩次警笛聲
-      playFireSiren();
-      setTimeout(playFireSiren, 1100);
+      // 連續播放多次警笛聲（更浮誇，但不加威嚇文案）
+      const sirenTimes = [0, 650, 1300, 1950, 2600];
+      sirenTimes.forEach((t) => setTimeout(playFireSiren, t));
 
-      // 2.5秒後停止閃爍，彈出最終確認卡片
+      // 停止閃爍後，彈出最終確認卡片
       setTimeout(() => {
         overlay.classList.remove('siren-active');
         document.getElementById('decisionZone').style.display = 'none';
         document.getElementById('finalConfirmCard').style.display = 'block';
         window.scrollTo({ top: document.getElementById('finalConfirmCard').offsetTop - 80, behavior: 'smooth' });
-      }, 2500);
+              document.body.classList.remove('siren-shake');
+      }, 3200);
     }
 
     // 第一階段：送出比對
