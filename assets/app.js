@@ -3,6 +3,20 @@
     if (!GAS_URL) {
       console.warn("APP_CONFIG.GAS_URL 未設定，請檢查 assets/config.js");
     }
+
+    function getApiToken() {
+      const token = (window.APP_CONFIG && window.APP_CONFIG.API_TOKEN) ? String(window.APP_CONFIG.API_TOKEN) : "";
+      return token.trim();
+    }
+
+    function ensureApiTokenOrAlert() {
+      const token = getApiToken();
+      if (!token) {
+        alert("系統尚未完成設定（API_TOKEN 未填寫）。\n\n請聯絡管理者協助設定後再使用。");
+        return null;
+      }
+      return token;
+    }
     
     document.getElementById('today').textContent = `📅 ${new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'2-digit', day:'2-digit'})}`;
 
@@ -195,12 +209,15 @@
     async function handleInitialSubmit() {
       if (!validateForm()) return;
 
+      const apiToken = ensureApiTokenOrAlert();
+      if (!apiToken) return;
+
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
       document.getElementById('loadingOverlay').style.display = 'flex';
 
       try {
-        const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "query", query: q }) });
+        const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "query", query: q, token: apiToken }) });
         const json = await res.json();
         document.getElementById('loadingOverlay').style.display = 'none';
 
@@ -243,7 +260,7 @@
       };
 
       try {
-        const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "save", formData: formData }) });
+        const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "save", formData: formData, token: apiToken }) });
         const json = await res.json();
         document.getElementById('loadingOverlay').style.display = 'none';
         
