@@ -231,8 +231,76 @@
       return json;
     }
 
-    // 第一階段：準備送出（改為整頁 POST，不使用 fetch，避免 CORS）
-    function handleInitialSubmit() {
+    function escapeHtml_(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderMatches_(matches) {
+      const wrap = document.getElementById('historyTable');
+      if (!wrap) return;
+
+      if (!Array.isArray(matches) || matches.length === 0) {
+        wrap.innerHTML = '<div style="color:var(--text-muted);">查無相近紀錄</div>';
+        return;
+      }
+
+      wrap.innerHTML = matches.slice(0, 5).map(m => {
+        const tab = m.sheetTab || m.tab || '重點摘要';
+        const row = m.rowIndex ?? m.row ?? '';
+        const score = (m.score !== undefined && m.score !== null) ? `（相似度：${escapeHtml_(m.score)}）` : '';
+        const evidence = escapeHtml_(m.evidence || '')
+          .replace(/\n/g, '<br>');
+
+        return `
+          <div style="padding:14px; border:1px solid var(--border); border-radius:12px; margin:10px 0; background:rgba(255,255,255,0.75);">
+            <div style="font-weight:900; margin-bottom:8px; color:var(--deep-brown);">${escapeHtml_(tab)}｜第 ${escapeHtml_(row)} 列 ${score}</div>
+            <div style="font-size:15px; line-height:1.6; color:var(--text-main);">${evidence}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderHistory_(history) {
+      const wrap = document.getElementById('historyTable');
+      if (!wrap) return;
+
+      if (!Array.isArray(history) || history.length === 0) {
+        wrap.innerHTML = '<div style="color:var(--text-muted);">查無相近紀錄</div>';
+        return;
+      }
+
+      // 舊版格式：{date, proposal, conclusion}
+      const rows = history.slice(0, 10).map(h => {
+        return `
+          <tr>
+            <td style="padding:10px; border-bottom:1px solid var(--border); white-space:nowrap;">${escapeHtml_(h.date || '')}</td>
+            <td style="padding:10px; border-bottom:1px solid var(--border);">${escapeHtml_(h.proposal || '')}</td>
+            <td style="padding:10px; border-bottom:1px solid var(--border);">${escapeHtml_(h.conclusion || '')}</td>
+          </tr>
+        `;
+      }).join('');
+
+      wrap.innerHTML = `
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:10px; border-bottom:2px solid var(--border);">時間</th>
+              <th style="text-align:left; padding:10px; border-bottom:2px solid var(--border);">相似提案</th>
+              <th style="text-align:left; padding:10px; border-bottom:2px solid var(--border);">結論</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    // 第一階段：查詢歷次紀錄（顯示證據：問題/回答 + 來源列號），再由使用者決定是否送出
+    async function handleInitialSubmit() {
       if (!validateForm()) return;
 
       const apiToken = ensureApiTokenOrAlert();
@@ -241,10 +309,43 @@
       // 暫存 token，供最終存檔使用
       window.__API_TOKEN__ = apiToken;
 
-      // 直接進入最終確認（保留原本儀式感）
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
-      triggerSirenSequence();
+
+      // 顯示 loading
+      document.getElementById('loadingOverlay').style.display = 'flex';
+
+      try {
+        const queryText = String(document.getElementById('suggestion')?.value || '').trim();
+        const resp = await postToGas('query', { token: apiToken, query: queryText });
+
+        // 隱藏 loading
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        // 顯示結果卡
+        const dupHint = document.getElementById('dupHint');
+        dupHint.style.display = 'block';
+
+        document.getElementById('aiSummary').textContent = (resp && resp.summary) ? String(resp.summary) : '';
+
+        // 新舊格式兼容：matches（新版）/ history（舊版）
+        const matches = (resp && Array.isArray(resp.matches)) ? resp.matches : null;
+        const history = (resp && Array.isArray(resp.history)) ? resp.history : null;
+
+        if (matches) renderMatches_(matches);
+        else renderHistory_(history || []);
+
+        // 顯示「參考/決策」區塊，先不要跳最後確認
+        document.getElementById('decisionZone').style.display = 'grid';
+        document.getElementById('finalConfirmCard').style.display = 'none';
+
+        window.scrollTo({ top: dupHint.offsetTop - 80, behavior: 'smooth' });
+      } catch (err) {
+        console.error(err);
+        document.getElementById('loadingOverlay').style.display = 'none';
+        btn.disabled = false;
+        alert('查詢失敗，請稍後再試或聯絡管理者。');
+      }
     }
 
     // 第二階段：最終存檔（整頁送出，不使用 fetch）
