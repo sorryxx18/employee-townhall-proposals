@@ -13,10 +13,12 @@
   <div id="loadingOverlay">
     <div class="spinner"></div>
     <div style="font-weight:900; font-size:24px; color:var(--text-main); padding:0 20px; text-align:center;">正在查詢歷次座談會紀錄... </div>
-    <div style="color:var(--text-muted); font-size:18px; margin-top:10px;">系統查詢約需 3–5 秒，請稍候</div>
+    <div style="color:var(--text-muted); font-size:18px; margin-top:10px;">系統查詢約需 10–15 秒，請稍候</div>
   </div>
 
   <div id="sirenOverlay"></div>
+
+  <!-- 內嵌消防車音效 (Web Audio API 將在腳本中呼叫，不需 HTML 標籤) -->
 
   <div class="topbar">
     <div class="container inner">
@@ -26,10 +28,9 @@
   </div>
 
   <main class="container">
-    <section class="hero" id="heroSection">
+    <section class="hero">
       <figure class="heroCard">
-        <!-- 替換為高畫質免費圖庫 -->
-        <img src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=1920&auto=format&fit=crop" alt="Hero"/>
+        <img src="./1770205128981.jpg" alt="Hero"/>
         <div class="heroOverlay"></div>
         <div class="heroText">
           <div class="title">
@@ -43,13 +44,12 @@
       </figure>
     </section>
 
-    <div class="intro-grid" id="introSection">
+    <div class="intro-grid">
       <div class="quote-section">
         <div class="quote-text">「您的每一個想法都很珍貴，無論大小，都是我們進步的動力。請放心分享，我們會認真傾聽。」</div>
       </div>
       <div class="fun-section">
-        <!-- 替換為免費插圖 -->
-        <div class="fun-image"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="趣味"/></div>
+        <div class="fun-image"><img src="./266207be87b246eb8d2e11c63eb5d224.png" alt="趣味"/></div>
         <div class="fun-text">
           <h3>有話就說，不用客氣！</h3>
           <p>開心的事、困擾的事、工作建議，都歡迎分享～</p>
@@ -63,56 +63,55 @@
         <p>💡 送出後，系統將自動為您查詢歷年相關紀錄</p>
       </div>
       
-      <!-- 步驟條 -->
+
       <nav class="form-stepper" aria-label="填寫進度">
         <ol>
-          <li class="step is-active" data-step="0"><span class="dot"></span><span class="label">基本資料</span></li>
-          <li class="step" data-step="1"><span class="dot"></span><span class="label">提案內容</span></li>
-          <li class="step" data-step="2"><span class="dot"></span><span class="label">附件</span><span class="muted">（選填）</span></li>
-          <li class="step" data-step="3"><span class="dot"></span><span class="label">確認送出</span></li>
+          <li class="step is-active" data-step="identity"><span class="dot"></span><span class="label">基本資料</span></li>
+          <li class="step" data-step="content"><span class="dot"></span><span class="label">提案內容</span></li>
+          <li class="step" data-step="attachments"><span class="dot"></span><span class="label">附件</span><span class="muted">（選填）</span></li>
+          <li class="step" data-step="confirm"><span class="dot"></span><span class="label">確認送出</span></li>
         </ol>
       </nav>
-
-      <div id="formFields">
-        <label>1. 請問提案是否具名？ <span class="required">*</span></label>
-        <div class="radio-group">
-          <label class="radio-label"><input type="radio" name="identity" value="named" checked onclick="toggleId(true)"> ✏️ 記名反映</label>
-          <label class="radio-label"><input type="radio" name="identity" value="anon" onclick="toggleId(false)"> 🕵️‍♂️ 不記名反映</label>
-        </div>
-
-        <div id="identitySection">
-          <label>單位 / 職稱 / 姓名 <span class="required">*</span></label>
-          <div class="form-row">
-            <input type="text" id="dept" placeholder="單位 (如: 災害搶救科)">
-            <input type="text" id="jobTitle" placeholder="職稱">
-            <input type="text" id="userName" placeholder="真實姓名">
-          </div>
-        </div>
-
-        <div id="contentSection" class="form-block">
-          <label>5. 建議事項 <span class="required">*</span></label>
-          <textarea id="suggestion" rows="6" placeholder="請詳細說明您在實務上觀察到的問題或建議..."></textarea>
-          <!-- 錯誤提示區塊 -->
-          <div class="field-error" id="suggestionError" role="alert" aria-live="polite"></div>
-
-          <label>6. 具體事證 / 建議方案 <span class="required">*</span></label>
-          <textarea id="evidence" rows="4" placeholder="請列出具體數據、相關公文或您心目中的解決方案（必填）"></textarea>
-          <!-- 錯誤提示區塊 -->
-          <div class="field-error" id="evidenceError" role="alert" aria-live="polite"></div>
-        </div>
-
-        <div id="attachmentsSection" class="form-block">
-          <label>7. 附件 (選填)</label>
-          <div id="dropZone" class="upload-area">
-            <div style="font-size: 36px; margin-bottom: 8px;">📎</div>
-            <span id="dropZoneText">點擊或拖放檔案至此處上傳</span>
-            <input type="file" id="fileInput" multiple style="display: none;">
-          </div>
-          <div id="fileList" style="margin-top: 15px; font-size: 17px; color: var(--primary); font-weight: 500;"></div>
-        </div>
-
-        <button class="btn btnPrimary" id="submitBtn" onclick="handleInitialSubmit()">💌 進行查詢與送出</button>
+      <label>1. 請問提案是否具名？ <span class="required">*</span></label>
+      <div class="radio-group">
+        <label class="radio-label"><input type="radio" name="identity" value="named" checked onclick="toggleId(true)"> ✏️ 記名反映</label>
+        <label class="radio-label"><input type="radio" name="identity" value="anon" onclick="toggleId(false)"> 🕵️‍♂️ 不記名反映</label>
       </div>
+
+      <div id="identitySection">
+        <label>單位 / 職稱 / 姓名 <span class="required">*</span></label>
+        <div class="form-row">
+          <input type="text" id="dept" placeholder="單位 (如: 災害搶救科)">
+          <input type="text" id="jobTitle" placeholder="職稱">
+          <input type="text" id="userName" placeholder="真實姓名">
+        </div>
+      </div>
+
+      <div id="contentSection" class="form-block">
+      <label>5. 建議事項 <span class="required">*</span></label>
+      <textarea id="suggestion" rows="6" placeholder="請詳細說明您在實務上觀察到的問題或建議..."></textarea>
+      <div class="field-error" id="suggestionError" role="alert" aria-live="polite"></div>
+
+      <label>6. 具體事證 / 建議方案 <span class="required">*</span></label>
+      <textarea id="evidence" rows="4" placeholder="請列出具體數據、相關公文或您心目中的解決方案（必填）"></textarea>
+      <div class="field-error" id="evidenceError" role="alert" aria-live="polite"></div>
+      </div>
+
+      <div id="attachmentsSection" class="form-block">
+      <label>7. 附件 (選填)</label>
+      
+      <!-- 替換：真實的拖拉上傳區域 -->
+      <div id="dropZone" class="upload-area">
+        <div style="font-size: 36px; margin-bottom: 8px;">📎</div>
+        <span id="dropZoneText">點擊或拖放檔案至此處上傳</span>
+        <!-- 隱藏的實際輸入元件 -->
+        <input type="file" id="fileInput" multiple style="display: none;">
+      </div>
+      <!-- 顯示已選取檔案的列表 -->
+      <div id="fileList" style="margin-top: 15px; font-size: 17px; color: var(--deep-brown); font-weight: 500;"></div>
+      </div>
+
+      <button class="btn btnPrimary" id="submitBtn" onclick="handleInitialSubmit()">💌 進行查詢與送出</button>
 
       <!-- 查詢結果 (預設隱藏) -->
       <div class="hint" id="dupHint">
@@ -126,7 +125,7 @@
         </div>
       </div>
 
-      <!-- 最終確認框 (預設隱藏) -->
+      <!-- 最終確認框 -->
       <div id="finalConfirmCard">
           <div style="font-size:34px; font-weight:900; color:var(--danger); margin-bottom:15px;">📢 最後確認</div>
           <p style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統查詢發現已有高度相似的歷年紀錄。<br>建議您參閱辦理結果，避免重複提案浪費行政資源。</p>
@@ -137,13 +136,11 @@
       </div>
     </section>
 
-    <!-- 成功畫面 (預設隱藏) -->
     <section class="success" id="successBox">
       <div style="font-size: 100px; margin-bottom: 10px;">🎉</div>
       <h3>提交成功！感謝參與</h3>
       <p style="font-size:22px; color:var(--text-muted); margin:15px 0 40px;">您的寶貴建言已安全存入系統，我們將認真研議。💚</p>
-      <!-- 替換為成功情境圖片 -->
-      <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop" style="width:100%; max-width:600px; border-radius:var(--radius-lg); box-shadow: var(--shadow-lg);">
+      <img src="./1769910482662.jpg" style="width:100%; max-width:600px; border-radius:var(--radius-lg); box-shadow: var(--shadow-lg);">
     </section>
   </main>
 
