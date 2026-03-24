@@ -1,452 +1,229 @@
-    // ⚠️ 務必替換此網址為您的 GAS 部署網址
-    const GAS_URL = (window.APP_CONFIG && window.APP_CONFIG.GAS_URL) ? window.APP_CONFIG.GAS_URL : "";
-    if (!GAS_URL) {
-      console.warn("APP_CONFIG.GAS_URL 未設定，請檢查 assets/config.js");
-    }
+// --- 網頁初始化 ---
+document.addEventListener("DOMContentLoaded", () => {
+    const today = new Date();
+    document.getElementById("today").innerText = `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
 
-    function getApiToken() {
-      const token = (window.APP_CONFIG && window.APP_CONFIG.API_TOKEN) ? String(window.APP_CONFIG.API_TOKEN) : "";
-      return token.trim();
-    }
+    // 點擊開始填寫滾動到表單
+    document.getElementById("startFillBtn").addEventListener("click", () => {
+        document.getElementById("formSection").scrollIntoView({ behavior: "smooth" });
+        updateStepper(1); // 切換到「提案內容」步驟
+    });
 
-    function ensureApiTokenOrAlert() {
-      const token = getApiToken();
-      if (!token) {
-        alert("系統尚未完成設定（API_TOKEN 未填寫）。\n\n請聯絡管理者協助設定後再使用。");
-        return null;
-      }
-      return token;
-    }
+    setupDragAndDrop();
     
-    document.getElementById('today').textContent = `📅 ${new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'2-digit', day:'2-digit'})}`;
+    // 監聽輸入框，使用者輸入時清除紅字錯誤
+    document.getElementById("suggestion").addEventListener("input", () => {
+        document.getElementById("suggestionError").innerText = "";
+    });
+    document.getElementById("evidence").addEventListener("input", () => {
+        document.getElementById("evidenceError").innerText = "";
+    });
+});
 
-    // 首屏 CTA：平滑捲動到表單
-    const startBtn = document.getElementById('startFillBtn');
-    if (startBtn) {
-      startBtn.addEventListener('click', () => {
-        const el = document.getElementById('formSection');
-        if (!el) return;
-        const topbar = document.querySelector('.topbar');
-        const offset = topbar ? topbar.offsetHeight + 12 : 12;
-        const y = el.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
-      });
+// --- UI 互動邏輯 ---
+function toggleId(isNamed) {
+    const section = document.getElementById("identitySection");
+    if (isNamed) {
+        section.style.display = "block";
+    } else {
+        section.style.display = "none";
+        document.getElementById("dept").value = "";
+        document.getElementById("jobTitle").value = "";
+        document.getElementById("userName").value = "";
     }
+}
 
-    // ===== 進度條（依捲動高亮） =====
-    function setupFormStepper() {
-      const steps = Array.from(document.querySelectorAll('.form-stepper .step'));
-      if (!steps.length) return;
-
-      const map = {
-        identity: document.getElementById('identitySection'),
-        content: document.getElementById('contentSection'),
-        attachments: document.getElementById('attachmentsSection'),
-        confirm: document.getElementById('confirmSection'),
-      };
-
-      const targets = Object.entries(map).filter(([,el]) => !!el);
-      if (!targets.length) return;
-
-      const activate = (key) => {
-        steps.forEach(s => s.classList.toggle('is-active', s.dataset.step === key));
-      };
-
-      // 點擊 step：捲到對應區塊（體驗加分）
-      steps.forEach(sEl => {
-        sEl.addEventListener('click', () => {
-          const key = sEl.dataset.step;
-          const el = map[key];
-          if (!el) return;
-          const topbar = document.querySelector('.topbar');
-          const offset = topbar ? topbar.offsetHeight + 12 : 12;
-          const y = el.getBoundingClientRect().top + window.scrollY - offset;
-          window.scrollTo({ top: y, behavior: 'smooth' });
-        });
-      });
-
-      const io = new IntersectionObserver((entries) => {
-        // 找出目前最靠上的可視區塊
-        const visible = entries.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio);
-        if (!visible.length) return;
-        const el = visible[0].target;
-        const key = targets.find(([,t]) => t === el)?.[0];
-        if (key) activate(key);
-      }, {
-        root: null,
-        threshold: [0.2, 0.35, 0.5, 0.65],
-      });
-
-      targets.forEach(([,el]) => io.observe(el));
-    }
-
-    setupFormStepper();
-
-    function toggleId(s) { document.getElementById('identitySection').style.display = s ? 'block' : 'none'; }
-
-
-    // ===== 表單驗證（中性文案） =====
-    function setFieldError(inputEl, errorEl, message) {
-      if (errorEl) errorEl.textContent = message || "";
-      if (inputEl) {
-        if (message) inputEl.classList.add('is-invalid');
-        else inputEl.classList.remove('is-invalid');
-      }
-    }
-
-    function clearAllErrors() {
-      setFieldError(document.getElementById('suggestion'), document.getElementById('suggestionError'), '');
-      setFieldError(document.getElementById('evidence'), document.getElementById('evidenceError'), '');
-      const idErr = document.getElementById('identityError');
-      if (idErr) idErr.textContent = '';
-      ['dept','jobTitle','userName'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('is-invalid');
-      });
-    }
-
-    function validateForm() {
-      clearAllErrors();
-
-      const identityValue = document.querySelector('input[name="identity"]:checked')?.value;
-      const isNamed = identityValue === 'named';
-
-      const dept = document.getElementById('dept');
-      const jobTitle = document.getElementById('jobTitle');
-      const userName = document.getElementById('userName');
-      const suggestion = document.getElementById('suggestion');
-      const evidence = document.getElementById('evidence');
-
-      let firstBad = null;
-
-      if (isNamed) {
-        const d = (dept?.value || '').trim();
-        const j = (jobTitle?.value || '').trim();
-        const u = (userName?.value || '').trim();
-        const idErr = document.getElementById('identityError');
-        if (!d || !j || !u) {
-          if (idErr) idErr.textContent = '請完整填寫「單位 / 職稱 / 姓名」。';
-          if (!d) dept?.classList.add('is-invalid');
-          if (!j) jobTitle?.classList.add('is-invalid');
-          if (!u) userName?.classList.add('is-invalid');
-          firstBad = dept || jobTitle || userName;
+function updateStepper(stepIndex) {
+    const steps = document.querySelectorAll(".form-stepper .step");
+    steps.forEach((step, index) => {
+        if (index <= stepIndex) {
+            step.classList.add("is-active");
+        } else {
+            step.classList.remove("is-active");
         }
-      }
+    });
+}
 
-      const q = (suggestion?.value || '').trim();
-      const e = (evidence?.value || '').trim();
-      if (!q) {
-        setFieldError(suggestion, document.getElementById('suggestionError'), '請填寫「建議事項」。');
-        firstBad = firstBad || suggestion;
-      }
-      if (!e) {
-        setFieldError(evidence, document.getElementById('evidenceError'), '請填寫「具體事證 / 建議方案」。');
-        firstBad = firstBad || evidence;
-      }
+// --- 拖放上傳邏輯 ---
+function setupDragAndDrop() {
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const fileList = document.getElementById("fileList");
 
-      if (firstBad) {
-        const topbar = document.querySelector('.topbar');
-        const offset = topbar ? topbar.offsetHeight + 12 : 12;
-        const y = firstBad.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
-        setTimeout(() => firstBad.focus({ preventScroll: true }), 250);
-        return false;
-      }
+    dropZone.addEventListener("click", () => fileInput.click());
 
-      return true;
-    }
-
-    // 音效產生器：模擬真實消防車/救護車警笛 (Web Audio API)
-    function playFireSiren() {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = "sawtooth";
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      const now = ctx.currentTime;
-
-      // 更浮誇：更大的頻率掃描 + 更明顯的音量包絡
-      osc.frequency.setValueAtTime(520, now);
-      osc.frequency.linearRampToValueAtTime(1200, now + 0.45);
-      osc.frequency.linearRampToValueAtTime(680, now + 0.9);
-      osc.frequency.linearRampToValueAtTime(1320, now + 1.35);
-      osc.frequency.linearRampToValueAtTime(520, now + 1.8);
-
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.28, now + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.06, now + 0.9);
-      gain.gain.exponentialRampToValueAtTime(0.22, now + 1.05);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.9);
-
-      osc.start(now);
-      osc.stop(now + 1.95);
-    }
-
-    // 觸發紅藍閃爍與音效
-    function triggerSirenSequence() {
-      const overlay = document.getElementById('sirenOverlay');
-      overlay.classList.add('siren-active');
-      document.body.classList.add('siren-shake');
-      
-      // 連續播放多次警笛聲（更浮誇，但不加威嚇文案）
-      const sirenTimes = [0, 650, 1300, 1950, 2600];
-      sirenTimes.forEach((t) => setTimeout(playFireSiren, t));
-
-      // 停止閃爍後，彈出最終確認卡片
-      setTimeout(() => {
-        overlay.classList.remove('siren-active');
-        document.getElementById('decisionZone').style.display = 'none';
-        document.getElementById('finalConfirmCard').style.display = 'block';
-        window.scrollTo({ top: document.getElementById('finalConfirmCard').offsetTop - 80, behavior: 'smooth' });
-              document.body.classList.remove('siren-shake');
-      }, 3200);
-    }
-
-    // ===== GAS 呼叫（避免 CORS preflight + 防呆解析回應） =====
-    async function postToGas(action, payload) {
-      const res = await fetch(GAS_URL, {
-        method: "POST",
-        // 關鍵：用 text/plain 避免觸發 preflight（參照 facility-booking）
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action, ...payload })
-      });
-
-      const text = await res.text();
-      let json;
-      try {
-        json = JSON.parse(text);
-      } catch {
-        json = { status: "error", message: "Non-JSON response", raw: text };
-      }
-
-      if (!res.ok) {
-        const err = new Error(`HTTP ${res.status}`);
-        err.response = json;
-        throw err;
-      }
-
-      return json;
-    }
-
-    function escapeHtml_(s) {
-      return String(s || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function renderMatches_(matches) {
-      const wrap = document.getElementById('historyTable');
-      if (!wrap) return;
-
-      if (!Array.isArray(matches) || matches.length === 0) {
-        wrap.innerHTML = '<div style="color:var(--text-muted);">查無相近紀錄</div>';
-        return;
-      }
-
-      wrap.innerHTML = matches.slice(0, 5).map(m => {
-        const tab = m.sheetTab || m.tab || '重點摘要';
-        const row = m.rowIndex ?? m.row ?? '';
-        const score = (m.score !== undefined && m.score !== null) ? `（相似度：${escapeHtml_(m.score)}）` : '';
-        const evidence = escapeHtml_(m.evidence || '')
-          .replace(/\n/g, '<br>');
-
-        return `
-          <div style="padding:14px; border:1px solid var(--border); border-radius:12px; margin:10px 0; background:rgba(255,255,255,0.75);">
-            <div style="font-weight:900; margin-bottom:8px; color:var(--deep-brown);">${escapeHtml_(tab)}｜第 ${escapeHtml_(row)} 列 ${score}</div>
-            <div style="font-size:15px; line-height:1.6; color:var(--text-main);">${evidence}</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderHistory_(history) {
-      const wrap = document.getElementById('historyTable');
-      if (!wrap) return;
-
-      if (!Array.isArray(history) || history.length === 0) {
-        wrap.innerHTML = '<div style="color:var(--text-muted);">查無相近紀錄</div>';
-        return;
-      }
-
-      // 舊版格式：{date, proposal, conclusion}
-      const rows = history.slice(0, 10).map(h => {
-        return `
-          <tr>
-            <td style="padding:10px; border-bottom:1px solid var(--border); white-space:nowrap;">${escapeHtml_(h.date || '')}</td>
-            <td style="padding:10px; border-bottom:1px solid var(--border);">${escapeHtml_(h.proposal || '')}</td>
-            <td style="padding:10px; border-bottom:1px solid var(--border);">${escapeHtml_(h.conclusion || '')}</td>
-          </tr>
-        `;
-      }).join('');
-
-      wrap.innerHTML = `
-        <table style="width:100%; border-collapse:collapse;">
-          <thead>
-            <tr>
-              <th style="text-align:left; padding:10px; border-bottom:2px solid var(--border);">時間</th>
-              <th style="text-align:left; padding:10px; border-bottom:2px solid var(--border);">相似提案</th>
-              <th style="text-align:left; padding:10px; border-bottom:2px solid var(--border);">結論</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-    }
-
-    // 第一階段：查詢歷次紀錄（顯示證據：問題/回答 + 來源列號），再由使用者決定是否送出
-    async function handleInitialSubmit() {
-      if (!validateForm()) return;
-
-      const apiToken = ensureApiTokenOrAlert();
-      if (!apiToken) return;
-
-      // 暫存 token，供最終存檔使用
-      window.__API_TOKEN__ = apiToken;
-
-      const btn = document.getElementById('submitBtn');
-      btn.disabled = true;
-
-      // 顯示 loading
-      document.getElementById('loadingOverlay').style.display = 'flex';
-
-      try {
-        const queryText = String(document.getElementById('suggestion')?.value || '').trim();
-        const resp = await postToGas('query', { token: apiToken, query: queryText });
-
-        // 隱藏 loading
-        document.getElementById('loadingOverlay').style.display = 'none';
-
-        // 顯示結果卡
-        const dupHint = document.getElementById('dupHint');
-        dupHint.style.display = 'block';
-
-        document.getElementById('aiSummary').textContent = (resp && resp.summary) ? String(resp.summary) : '';
-
-        // 新舊格式兼容：matches（新版）/ history（舊版）
-        const matches = (resp && Array.isArray(resp.matches)) ? resp.matches : null;
-        const history = (resp && Array.isArray(resp.history)) ? resp.history : null;
-
-        if (matches) renderMatches_(matches);
-        else renderHistory_(history || []);
-
-        // 顯示「參考/決策」區塊，先不要跳最後確認
-        document.getElementById('decisionZone').style.display = 'grid';
-        document.getElementById('finalConfirmCard').style.display = 'none';
-
-        window.scrollTo({ top: dupHint.offsetTop - 80, behavior: 'smooth' });
-      } catch (err) {
-        console.error(err);
-        document.getElementById('loadingOverlay').style.display = 'none';
-        btn.disabled = false;
-        alert('查詢失敗，請稍後再試或聯絡管理者。');
-      }
-    }
-
-    // 第二階段：最終存檔（整頁送出，不使用 fetch）
-    function finalSave() {
-      const apiToken = (window.__API_TOKEN__ || '').trim();
-      if (!apiToken) {
-        alert("系統尚未完成設定（API_TOKEN 未填寫）。\n\n請聯絡管理者協助設定後再使用。");
-        return;
-      }
-
-      document.getElementById('finalConfirmCard').style.display = 'none';
-      document.getElementById('loadingOverlay').style.display = 'flex';
-
-      const payload = {
-        action: 'save',
-        token: apiToken,
-        identity: document.querySelector('input[name="identity"]:checked')?.value || '',
-        dept: document.getElementById('dept')?.value || '',
-        jobTitle: document.getElementById('jobTitle')?.value || '',
-        userName: document.getElementById('userName')?.value || '',
-        suggestion: document.getElementById('suggestion')?.value || '',
-        evidence: document.getElementById('evidence')?.value || '',
-      };
-
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = GAS_URL;
-      form.acceptCharset = 'utf-8';
-
-      for (const [k, v] of Object.entries(payload)) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = k;
-        input.value = String(v);
-        form.appendChild(input);
-      }
-
-      document.body.appendChild(form);
-      form.submit();
-    }
-    // --- 新增：檔案點擊與拖拉互動邏輯 ---
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-    const fileList = document.getElementById('fileList');
-    let selectedFiles = []; // 存放使用者選擇的檔案
-
-    // 1. 點擊整個虛線框時，觸發隱藏的 input
-    dropZone.addEventListener('click', () => fileInput.click());
-
-    // 2. 透過點擊視窗選擇檔案後
-    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-
-    // 3. 拖曳進入框內時的視覺變化
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
+    dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
     });
 
-    // 4. 拖曳離開框時恢復原狀
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
+    dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("dragover");
     });
 
-    // 5. 放開滑鼠丟下檔案時
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      handleFiles(e.dataTransfer.files);
+    dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        handleFiles(e.dataTransfer.files);
     });
 
-    // 處理檔案的副程式
+    fileInput.addEventListener("change", (e) => {
+        handleFiles(e.target.files);
+    });
+
     function handleFiles(files) {
-      if (files.length > 0) {
-        Array.from(files).forEach(file => selectedFiles.push(file));
-        updateFileList();
-      }
+        if (files.length === 0) return;
+        let fileNames = Array.from(files).map(f => `📄 ${f.name}`).join("<br>");
+        fileList.innerHTML = `<strong>已選取 ${files.length} 個檔案：</strong><br>${fileNames}`;
+        document.getElementById("dropZoneText").innerText = "點擊或拖放可重新選擇檔案";
+        updateStepper(2); // 有選檔案，推至附件步驟
+    }
+}
+
+// --- 表單防呆與 AI 模擬查詢 ---
+function handleInitialSubmit() {
+    const suggestion = document.getElementById("suggestion").value.trim();
+    const evidence = document.getElementById("evidence").value.trim();
+    
+    // 1. 防呆檢查與紅字提示
+    let hasError = false;
+    if (!suggestion) {
+        document.getElementById("suggestionError").innerText = "⚠️ 請詳細填寫建議事項，此為必填欄位。";
+        hasError = true;
+    }
+    if (!evidence) {
+        document.getElementById("evidenceError").innerText = "⚠️ 請列出具體事證或方案，此為必填欄位。";
+        hasError = true;
     }
 
-    // 更新下方檔案清單的畫面
-    function updateFileList() {
-      if (selectedFiles.length === 0) {
-        fileList.innerHTML = "";
-        document.getElementById('dropZoneText').innerText = "點擊或拖放檔案至此處上傳";
-        return;
-      }
-      document.getElementById('dropZoneText').innerText = "可繼續點擊或拖放增加檔案";
-      
-      let html = '<ul style="list-style:none; padding:0;">';
-      selectedFiles.forEach((f, index) => {
-        html += `<li style="margin-bottom: 8px; background: rgba(255,255,255,0.6); padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);">
-                   <span>📄 ${f.name}</span>
-                   <span style="color:var(--danger); cursor:pointer; font-size:16px;" onclick="removeFile(${index}, event)">✖ 移除</span>
-                 </li>`;
-      });
-      html += '</ul>';
-      fileList.innerHTML = html;
+    if (hasError) {
+        // 如果有錯，滾動回填寫區
+        document.getElementById("suggestion").scrollIntoView({ behavior: "smooth", block: "center" });
+        return; 
     }
 
-    // 移除單一檔案 (加 event.stopPropagation() 防止點擊時又觸發上傳窗)
-    function removeFile(index, event) {
-      event.stopPropagation();
-      selectedFiles.splice(index, 1);
-      updateFileList();
+    // 2. 通過檢查，隱藏輸入區塊與按鈕
+    document.getElementById("submitBtn").style.display = "none";
+    document.getElementById("formFields").style.display = "none";
+
+    // 3. 顯示 AI 查詢動畫
+    const overlay = document.getElementById("loadingOverlay");
+    overlay.style.display = "flex";
+
+    // 模擬 3 秒後顯示結果
+    setTimeout(() => {
+        overlay.style.display = "none";
+        showDuplicateHint();
+        updateStepper(3); // 推至「確認送出」步驟
+    }, 3000);
+}
+
+function showDuplicateHint() {
+    const dupHint = document.getElementById("dupHint");
+    dupHint.style.display = "block";
+    
+    // 渲染假資料
+    document.getElementById("aiSummary").innerHTML = `
+        <strong>🤖 系統智慧分析：</strong><br>
+        您的提案內容已分析完畢。系統發現過去 3 年內，已有 <strong>2 筆</strong> 高度相關的座談會紀錄，請參考以下辦理情形：
+    `;
+
+    document.getElementById("historyTable").innerHTML = `
+        <table style="width:100%; border-collapse: collapse; text-align: left;">
+            <tr style="border-bottom: 2px solid #ddd; background: #f8f9fa;">
+                <th style="padding:10px;">年份</th>
+                <th style="padding:10px;">提案摘要</th>
+                <th style="padding:10px;">辦理結果</th>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding:10px;">111年</td>
+                <td style="padding:10px;">建議爭取外勤消防衣第二套預算</td>
+                <td style="padding:10px; color:var(--success); font-weight:bold;">✅ 已獲專案預算，預計年底配發完畢。</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">112年</td>
+                <td style="padding:10px;">反映勤休制度未落實補休</td>
+                <td style="padding:10px; color:var(--text-muted);">📝 已函發各分隊，授權主管彈性調度。</td>
+            </tr>
+        </table>
+    `;
+    
+    dupHint.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+// --- 消防警報彩蛋特效 (Web Audio API) ---
+let audioCtx;
+let sirenOscillator;
+let sirenGain;
+
+function triggerSirenSequence() {
+    // 隱藏查詢結果
+    document.getElementById("dupHint").style.display = "none";
+    
+    // 啟動紅色閃爍
+    const sirenOverlay = document.getElementById("sirenOverlay");
+    sirenOverlay.style.display = "block";
+    sirenOverlay.classList.add("siren-active");
+
+    // 啟動音效
+    playSirenAudio();
+
+    // 顯示最終警告框
+    const finalCard = document.getElementById("finalConfirmCard");
+    finalCard.style.display = "block";
+    finalCard.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function playSirenAudio() {
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        sirenOscillator = audioCtx.createOscillator();
+        sirenGain = audioCtx.createGain();
+
+        sirenOscillator.connect(sirenGain);
+        sirenGain.connect(audioCtx.destination);
+
+        sirenOscillator.type = 'square';
+        sirenGain.gain.value = 0.1; // 音量控制 (避免太大聲)
+
+        const now = audioCtx.currentTime;
+        sirenOscillator.frequency.setValueAtTime(800, now);
+        
+        // 產生 Hi-Lo 交替警報聲
+        for (let i = 0; i < 15; i++) {
+            sirenOscillator.frequency.setValueAtTime(800, now + i);
+            sirenOscillator.frequency.setValueAtTime(600, now + i + 0.5);
+        }
+
+        sirenOscillator.start(now);
+        sirenOscillator.stop(now + 8); // 8 秒後停止
+    } catch (e) {
+        console.warn("瀏覽器阻擋了音效播放或不支援 Web Audio API", e);
     }
+}
+
+function stopSiren() {
+    const sirenOverlay = document.getElementById("sirenOverlay");
+    sirenOverlay.style.display = "none";
+    sirenOverlay.classList.remove("siren-active");
+    if (sirenOscillator) {
+        try { sirenOscillator.stop(); } catch(e) {}
+    }
+}
+
+// --- 最終送出 ---
+function finalSave() {
+    stopSiren(); // 停止警報
+    
+    // 隱藏所有不需要的區塊
+    document.getElementById("formSection").style.display = "none";
+    document.getElementById("introSection").style.display = "none";
+    document.getElementById("heroSection").style.display = "none";
+
+    // 顯示成功畫面
+    const successBox = document.getElementById("successBox");
+    successBox.style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
