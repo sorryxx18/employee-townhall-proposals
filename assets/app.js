@@ -348,8 +348,8 @@
       }
     }
 
-    // 第二階段：最終存檔（整頁送出，不使用 fetch）
-    function finalSave() {
+    // 第二階段：最終存檔（改為 JSON fetch，支援附件）
+    async function finalSave() {
       const apiToken = (window.__API_TOKEN__ || '').trim();
       if (!apiToken) {
         alert("系統尚未完成設定（API_TOKEN 未填寫）。\n\n請聯絡管理者協助設定後再使用。");
@@ -359,32 +359,41 @@
       document.getElementById('finalConfirmCard').style.display = 'none';
       document.getElementById('loadingOverlay').style.display = 'flex';
 
-      const payload = {
-        action: 'save',
-        token: apiToken,
-        identity: document.querySelector('input[name="identity"]:checked')?.value || '',
-        dept: document.getElementById('dept')?.value || '',
-        jobTitle: document.getElementById('jobTitle')?.value || '',
-        userName: document.getElementById('userName')?.value || '',
-        suggestion: document.getElementById('suggestion')?.value || '',
-        evidence: document.getElementById('evidence')?.value || '',
-      };
+      try {
+        const formData = {
+          identity: document.querySelector('input[name="identity"]:checked')?.value || '',
+          dept: document.getElementById('dept')?.value || '',
+          jobTitle: document.getElementById('jobTitle')?.value || '',
+          userName: document.getElementById('userName')?.value || '',
+          suggestion: document.getElementById('suggestion')?.value || '',
+          evidence: document.getElementById('evidence')?.value || '',
+        };
 
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = GAS_URL;
-      form.acceptCharset = 'utf-8';
+        const attachments = await buildAttachmentPayloads(selectedFiles);
+        const resp = await postToGas('save', {
+          token: apiToken,
+          formData,
+          attachments
+        });
 
-      for (const [k, v] of Object.entries(payload)) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = k;
-        input.value = String(v);
-        form.appendChild(input);
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        if (!resp || resp.status !== 'success') {
+          throw new Error((resp && resp.message) ? resp.message : '送出失敗');
+        }
+
+        const count = resp.data && typeof resp.data.attachmentCount === 'number'
+          ? resp.data.attachmentCount
+          : attachments.length;
+
+        alert(count > 0 ? `提案已送出，附件 ${count} 件已上傳。` : '提案已送出。');
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('finalConfirmCard').style.display = 'block';
+        alert('送出失敗，請稍後再試。若有附件，請確認檔案大小與格式是否符合限制。');
       }
-
-      document.body.appendChild(form);
-      form.submit();
     }
     // --- 新增：檔案點擊與拖拉互動邏輯 ---
     const dropZone = document.getElementById('dropZone');
@@ -449,4 +458,52 @@
       event.stopPropagation();
       selectedFiles.splice(index, 1);
       updateFileList();
+    }
+
+    async function buildAttachmentPayloads(files) {
+      if (!Array.isArray(files) || files.length === 0) return [];
+      const maxFiles = 5;
+      const maxBytes = 5 * 1024 * 1024;
+
+      if (files.length > maxFiles) {
+        throw new Error(`附件最多只能上傳 ${maxFiles} 個`);
+      }
+
+      const allowedMimeTypes = new Set([
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ]);
+
+      return Promise.all(files.map(file => {
+        if (file.size > maxBytes) {
+          throw new Error(`${file.name} 超過 5MB 限制`);
+        }
+        if (file.type && !allowedMimeTypes.has(file.type)) {
+          throw new Error(`${file.name} 檔案格式不支援`);
+        }
+
+        return fileToBase64Payload(file);
+      }));
+    }
+
+    function fileToBase64Payload(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = String(reader.result || '');
+          const base64 = result.includes(',') ? result.split(',')[1] : result;
+          resolve({
+            name: file.name,
+            mimeType: file.type || 'application/octet-stream',
+            base64
+          });
+        };
+        reader.onerror = () => reject(new Error(`讀取檔案失敗：${file.name}`));
+        reader.readAsDataURL(file);
+      });
     }
