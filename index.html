@@ -22,7 +22,7 @@
 
   <div class="topbar">
     <div class="container inner">
-      <div class="brand"><span class="brand-icon">💬</span> 員工座談會平台</div>
+      <div class="brand"><span class="brand-icon">提案</span> 員工座談會平台</div>
       <div class="badge" id="today"></div>
     </div>
   </div>
@@ -35,7 +35,7 @@
         <div class="heroText">
           <div class="title">
             <h1>每一份建議，都是成長的力量</h1>
-            <p>透過您的聲音，讓我們一起建設更美好的工作環境 💪</p>
+            <p>透過您的意見回饋，持續改善工作環境與制度流程。</p>
             <div class="heroActions">
               <button class="btn btnPrimary btnHeroCta" id="startFillBtn" type="button">開始填寫</button>
             </div>
@@ -60,7 +60,7 @@
     <section class="section" id="formSection">
       <div class="section-title">
         <h2>填寫您的提案</h2>
-        <p>💡 送出後，系統將自動為您查詢歷年相關紀錄</p>
+        <p>送出前，系統會先協助查詢歷年相近提案紀錄，供你參考後再決定是否正式送出。</p>
       </div>
       
 
@@ -72,10 +72,10 @@
           <li class="step" data-step="confirm"><span class="dot"></span><span class="label">確認送出</span></li>
         </ol>
       </nav>
-      <label>1. 請問提案是否具名？ <span class="required">*</span></label>
+      <label>1. 提案方式 <span class="required">*</span></label>
       <div class="radio-group">
-        <label class="radio-label"><input type="radio" name="identity" value="named" checked onclick="toggleId(true)"> ✏️ 記名反映</label>
-        <label class="radio-label"><input type="radio" name="identity" value="anon" onclick="toggleId(false)"> 🕵️‍♂️ 不記名反映</label>
+        <label class="radio-label"><input type="radio" name="identity" value="named" checked onclick="toggleId(true)"> 記名提案</label>
+        <label class="radio-label"><input type="radio" name="identity" value="anon" onclick="toggleId(false)"> 匿名提案</label>
       </div>
 
       <div id="identitySection">
@@ -98,11 +98,11 @@
       </div>
 
       <div id="attachmentsSection" class="form-block">
-      <label>7. 附件 (選填)</label>
+      <label>7. 附件資料（選填）</label>
       
       <!-- 替換：真實的拖拉上傳區域 -->
       <div id="dropZone" class="upload-area">
-        <div style="font-size: 36px; margin-bottom: 8px;">📎</div>
+        <div class="upload-symbol" aria-hidden="true">＋</div>
         <span id="dropZoneText">點擊或拖放檔案至此處上傳</span>
         <!-- 隱藏的實際輸入元件 -->
         <input type="file" id="fileInput" multiple style="display: none;">
@@ -111,35 +111,35 @@
       <div id="fileList" style="margin-top: 15px; font-size: 17px; color: var(--deep-brown); font-weight: 500;"></div>
       </div>
 
-      <button class="btn btnPrimary" id="submitBtn" onclick="handleInitialSubmit()">💌 進行查詢與送出</button>
+      <button class="btn btnPrimary" id="submitBtn" onclick="handleInitialSubmit()">開始查詢歷次紀錄</button>
 
       <!-- 查詢結果 (預設隱藏) -->
       <div class="hint" id="dupHint">
-        <div class="hint-title">📌 歷次座談會相關紀錄查詢結果</div>
+        <div class="hint-title">歷次座談會相關紀錄查詢結果</div>
         <div id="aiSummary" class="hint-text"></div>
         <div class="table-wrapper"><div id="historyTable"></div></div>
         
         <div id="decisionZone" style="margin-top:35px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-            <button class="btn btnSuccess" onclick="window.location.reload()">👌 我已了解，取消本次提交</button>
-            <button class="btn btnDanger" onclick="triggerSirenSequence()">內容不同，堅持送出建議</button>
+            <button class="btn btnSuccess" onclick="window.location.reload()">我已了解，先不送出</button>
+            <button class="btn btnDanger" onclick="triggerSirenSequence()">仍需反映，繼續送出</button>
         </div>
       </div>
 
       <!-- 最終確認框 -->
       <div id="finalConfirmCard">
-          <div style="font-size:34px; font-weight:900; color:var(--danger); margin-bottom:15px;">📢 最後確認</div>
-          <p style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統查詢發現已有高度相似的歷年紀錄。<br>建議您參閱辦理結果，避免重複提案浪費行政資源。</p>
-          <button class="btn btn-giveup" onclick="window.location.reload()">✅ 了解，我不送出了</button>
+          <div style="font-size:34px; font-weight:900; color:var(--danger); margin-bottom:15px;">最後確認</div>
+          <p style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統查詢到相近的歷年提案紀錄。<br>若你確認本次內容仍有新增事證、情境差異或需再次反映，可繼續正式送出。</p>
+          <button class="btn btn-giveup" onclick="window.location.reload()">我已了解，先不送出</button>
           <div style="margin-top:20px;">
-             <button class="btn btn-force" onclick="finalSave()">⚠️ 我已確認這是全新事證，正式存檔</button>
+             <button class="btn btn-force" onclick="finalSave()">確認內容仍需反映，正式送出</button>
           </div>
       </div>
     </section>
 
     <section class="success" id="successBox">
-      <div style="font-size: 100px; margin-bottom: 10px;">🎉</div>
+      <div class="success-symbol" aria-hidden="true">完成</div>
       <h3>提交成功！感謝參與</h3>
-      <p style="font-size:22px; color:var(--text-muted); margin:15px 0 40px;">您的寶貴建言已安全存入系統，我們將認真研議。💚</p>
+      <p style="font-size:22px; color:var(--text-muted); margin:15px 0 40px;">您的提案已送出，後續將由相關單位進行檢視與研議。</p>
       <img src="./1769910482662.jpg" style="width:100%; max-width:600px; border-radius:var(--radius-lg); box-shadow: var(--shadow-lg);">
     </section>
   </main>

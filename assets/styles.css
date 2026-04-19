@@ -45,10 +45,11 @@
 
     /* 新增：檔案拖拉區塊的互動樣式 */
     .upload-area {
-      border: 2px dashed var(--coral); padding: 40px; text-align: center; 
-      background: rgba(255,123,84,0.05); border-radius: var(--radius-md); 
+      border: 1.5px dashed rgba(255,123,84,0.45); padding: 40px; text-align: center; 
+      background: linear-gradient(180deg, rgba(255,123,84,0.05), rgba(255,255,255,0.85)); border-radius: var(--radius-md); 
       cursor: pointer; color: var(--coral-dark); font-weight: 700; transition: all 0.3s;
     }
+     .upload-symbol{ width:52px; height:52px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:30px; font-weight:500; background:#fff; color:var(--primary-hover); border:1px solid rgba(255,123,84,0.2); box-shadow: var(--shadow-sm); margin-bottom: 10px; }
     .upload-area:hover, .upload-area.dragover {
       background: rgba(255,123,84,0.15); border-color: var(--danger); transform: scale(1.02);
     }
@@ -74,8 +75,8 @@
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
     }
     .inner { display: flex; align-items: center; justify-content: space-between; }
-    .brand { font-weight: 900; color: var(--text-main); font-size: 22px; display: flex; align-items: center; gap: 10px; }
-    .brand-icon { font-size: 24px; }
+    .brand { font-weight: 900; color: var(--text-main); font-size: 22px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.02em; }
+    .brand-icon { font-size: 13px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; color: var(--primary-hover); padding: 6px 10px; border-radius: 999px; background: rgba(255,123,84,0.12); }
     .badge { font-size: 14px; padding: 6px 16px; border-radius: 50px; color: var(--primary-hover); background: rgba(255, 123, 84, 0.1); font-weight: 700; letter-spacing: 1px; }
 
     /* Hero 區域 - 視覺張力 */
@@ -95,8 +96,8 @@
       box-shadow: var(--shadow-lg); max-width: 900px; text-align: center; 
       border: 1px solid rgba(255,255,255,0.8);
     }
-    .heroText h1 { font-size: 42px; color: var(--text-main); font-weight: 900; line-height: 1.3; margin: 0; letter-spacing: 0.5px; }
-    .heroText p { margin-top: 15px; color: var(--text-muted); font-size: 20px; font-weight: 500; }
+    .heroText h1 { font-size: 42px; color: var(--text-main); font-weight: 900; line-height: 1.18; margin: 0; letter-spacing: -0.04em; text-wrap: balance; }
+    .heroText p { margin-top: 15px; color: var(--text-muted); font-size: 19px; font-weight: 500; max-width: 38ch; margin-left: auto; margin-right: auto; }
 
     /* Bento Grid 介紹區 */
     .intro-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; margin: 40px 0; animation: fadeUp 0.8s ease-out 0.2s both; }
@@ -125,8 +126,8 @@
       border: 1px solid rgba(255,255,255,0.8); animation: fadeUp 0.8s ease-out 0.4s both; 
     }
     .section-title { border-bottom: 2px dashed var(--border); padding-bottom: 25px; margin-bottom: 40px; }
-    .section-title h2 { font-size: 34px; color: var(--text-main); font-weight: 900; margin-bottom: 5px; }
-    .section-title p { color: var(--primary); font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+    .section-title h2 { font-size: 34px; color: var(--text-main); font-weight: 900; margin-bottom: 8px; letter-spacing: -0.03em; }
+    .section-title p { color: var(--text-muted); font-weight: 500; font-size: 18px; max-width: 54ch; }
     
     label { display: block; font-weight: 700; font-size: 20px; margin: 35px 0 12px; color: var(--text-main); }
     .required { color: var(--primary); margin-left: 6px; font-size: 22px; }
@@ -166,8 +167,8 @@
       padding: 40px; display: none; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; 
     }
     .hint::before { content:''; position:absolute; top:0; left:0; width:100%; height:6px; background: linear-gradient(90deg, var(--primary), var(--danger)); }
-    .hint-title { font-size: 26px; font-weight: 900; color: var(--primary-hover); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-    .hint-text { font-size: 19px; background: rgba(255,123,84,0.08); padding: 25px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 6px solid var(--primary); font-weight: 500; line-height: 1.8; }
+    .hint-title { font-size: 26px; font-weight: 900; color: var(--text-main); margin-bottom: 20px; letter-spacing: -0.02em; }
+    .hint-text { font-size: 18px; background: rgba(255,123,84,0.06); padding: 25px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 4px solid var(--primary); font-weight: 500; line-height: 1.9; color: var(--text-main); min-height: 92px; }
 
     /* 表格精品化 */
     .table-wrapper { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
@@ -185,10 +186,10 @@
     .btnPrimary:hover:not(:disabled) { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4); }
     .btnPrimary:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; color: #777; }
     
-    .btnSuccess { background: var(--success); color: white; box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3); }
-    .btnSuccess:hover { background: #27AE60; transform: translateY(-3px); box-shadow: 0 12px 25px rgba(46, 204, 113, 0.4); }
-    .btnDanger { background: var(--surface); color: var(--text-muted); border: 2px solid var(--border); }
-    .btnDanger:hover { border-color: var(--danger); color: var(--danger); background: #FFF5F5; }
+    .btnSuccess { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+    .btnSuccess:hover { background: #fff; transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .btnDanger { background: linear-gradient(135deg, var(--primary), var(--danger)); color: #fff; box-shadow: 0 8px 20px rgba(231, 76, 60, 0.22); }
+    .btnDanger:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(231, 76, 60, 0.28); }
     
     /* 最終確認框 (強烈對比) */
     #finalConfirmCard { 
@@ -196,14 +197,15 @@
       border-radius: var(--radius-xl); margin-top: 40px; text-align: center; 
       box-shadow: 0 24px 80px rgba(231, 76, 60, 0.2); animation: fadeUp 0.4s ease-out; 
     }
-    .btn-giveup { background: var(--success); color: white; font-size: 24px; padding: 24px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); } 
-    .btn-giveup:hover { transform: scale(1.03); background: #27AE60; }
-    .btn-force { background: transparent; color: #AFA49C; font-size: 18px; padding: 12px; width: auto; text-decoration: underline; } 
-    .btn-force:hover { color: var(--danger); }
+    .btn-giveup { background: var(--surface-dim); color: var(--text-main); font-size: 22px; padding: 22px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); } 
+    .btn-giveup:hover { transform: scale(1.02); background: #fff; }
+    .btn-force { background: transparent; color: var(--danger); font-size: 17px; padding: 12px; width: auto; text-decoration: underline; font-weight: 700; } 
+    .btn-force:hover { color: var(--primary-hover); }
 
     /* 成功頁面 */
     .success { display: none; text-align: center; padding: 100px 40px; background: var(--surface); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); animation: fadeUp 0.6s ease-out; }
-    .success h3 { font-size: 46px; color: var(--text-main); font-weight: 900; margin: 15px 0; }
+    .success h3 { font-size: 46px; color: var(--text-main); font-weight: 900; margin: 15px 0; letter-spacing: -0.03em; }
+    .success-symbol{ display:inline-flex; align-items:center; justify-content:center; min-width:110px; height:110px; padding:0 20px; border-radius:999px; background: rgba(46, 204, 113, 0.12); color: #1f8f51; font-size: 24px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
 
     /* 唯美 Loading 遮罩 */
     #loadingOverlay { position: fixed; inset: 0; background: rgba(253, 251, 249, 0.9); backdrop-filter: blur(10px); z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; }
