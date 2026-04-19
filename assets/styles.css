@@ -1,26 +1,26 @@
     :root {
-      /* 收斂版正式配色：米白 + 深墨灰 + 赭橘 */
-      --bg-gradient: linear-gradient(135deg, #F7F3EE 0%, #F2ECE5 100%);
-      --surface: #FFFCF8;
-      --surface-dim: #F4EEE7;
-      --primary: #B8653C;
-      --primary-hover: #944C2A;
+      /* 頂級溫馨調色盤 - 晨曦主題 */
+      --bg-gradient: linear-gradient(135deg, #FDFBF9 0%, #FFF2EC 100%);
+      --surface: #FFFFFF;
+      --surface-dim: #F9F6F3;
+      --primary: #FF7B54;
+      --primary-hover: #E86036;
       /* 相容舊變數命名（避免 var(--coral) 這種漏網之魚） */
       --coral: var(--primary);
       --coral-dark: var(--primary-hover);
       --deep-brown: var(--text-main);
-      --primary-light: #E8C2AE;
-      --text-main: #261F1A;
-      --text-muted: #6F6258;
-      --border: #DDD2C6;
-      --danger: #B54A3A;
-      --success: #3D7C59;
+      --primary-light: #FFD6C4;
+      --text-main: #2D241E;
+      --text-muted: #7A6B5F;
+      --border: #EAE0D8;
+      --danger: #E74C3C;
+      --success: #2ECC71;
       
       /* 柔和深邃陰影 (Soft UI) */
-      --shadow-sm: 0 4px 12px rgba(38, 31, 26, 0.05);
-      --shadow-md: 0 12px 32px rgba(38, 31, 26, 0.10);
-      --shadow-lg: 0 24px 60px rgba(148, 76, 42, 0.14);
-      --shadow-glow: 0 0 20px rgba(184, 101, 60, 0.22);
+      --shadow-sm: 0 4px 12px rgba(45, 36, 30, 0.04);
+      --shadow-md: 0 12px 32px rgba(45, 36, 30, 0.08);
+      --shadow-lg: 0 24px 60px rgba(255, 123, 84, 0.15);
+      --shadow-glow: 0 0 20px rgba(255, 123, 84, 0.4);
       
       --radius-xl: 32px;
       --radius-lg: 24px;
@@ -34,8 +34,8 @@
       font-family: 'Noto Sans TC', sans-serif;
       color: var(--text-main);
       background: var(--bg-gradient);
-      background-image: radial-gradient(circle at top right, rgba(184, 101, 60, 0.14), transparent 60%),
-                        radial-gradient(circle at bottom left, rgba(210, 182, 158, 0.22), transparent 60%);
+      background-image: radial-gradient(circle at top right, rgba(255, 123, 84, 0.18), transparent 60%),
+                        radial-gradient(circle at bottom left, rgba(255, 184, 150, 0.25), transparent 60%);
       background-attachment: fixed;
       line-height: 1.8;
       font-size: 18px;
@@ -68,7 +68,7 @@
     /* 頂部導航 - 毛玻璃精品化 */
     .topbar { 
       position: sticky; top: 0; z-index: 100; 
-      background: rgba(247, 243, 238, 0.88); 
+      background: rgba(253, 251, 249, 0.85); 
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.5); 
       padding: 16px 0;
@@ -76,8 +76,8 @@
     }
     .inner { display: flex; align-items: center; justify-content: space-between; }
     .brand { font-weight: 900; color: var(--text-main); font-size: 22px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.02em; }
-    .brand-icon { font-size: 13px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; color: var(--primary-hover); padding: 6px 10px; border-radius: 999px; background: rgba(184,101,60,0.12); }
-    .badge { font-size: 14px; padding: 6px 16px; border-radius: 50px; color: var(--primary-hover); background: rgba(184,101,60,0.1); font-weight: 700; letter-spacing: 1px; }
+    .brand-icon { font-size: 13px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; color: var(--primary-hover); padding: 6px 10px; border-radius: 999px; background: rgba(255,123,84,0.12); }
+    .badge { font-size: 14px; padding: 6px 16px; border-radius: 50px; color: var(--primary-hover); background: rgba(255, 123, 84, 0.1); font-weight: 700; letter-spacing: 1px; }
 
     /* Hero 區域 - 視覺張力 */
     .hero { margin-top: 30px; animation: fadeUp 0.8s ease-out; }
@@ -89,11 +89,11 @@
     .heroCard img { width: 100%; height: 100%; object-fit: cover; object-position: center center; transition: transform 8s ease; filter: saturate(0.94) contrast(1.02); }
     .heroCard:hover img { transform: scale(1.04); }
     .heroOverlay { position: absolute; inset: 0; background:
-      linear-gradient(180deg, rgba(24, 18, 14, 0.18) 0%, rgba(24, 18, 14, 0.40) 48%, rgba(24, 18, 14, 0.80) 100%),
-      radial-gradient(circle at 50% 18%, rgba(255,255,255,0.14), transparent 36%),
-      linear-gradient(90deg, rgba(24,18,14,0.28) 0%, rgba(24,18,14,0.05) 24%, rgba(24,18,14,0.05) 76%, rgba(24,18,14,0.28) 100%);
+      linear-gradient(180deg, rgba(20, 15, 10, 0.14) 0%, rgba(20, 15, 10, 0.38) 48%, rgba(20, 15, 10, 0.78) 100%),
+      radial-gradient(circle at 50% 18%, rgba(255,255,255,0.18), transparent 36%),
+      linear-gradient(90deg, rgba(20,15,10,0.24) 0%, rgba(20,15,10,0.04) 24%, rgba(20,15,10,0.04) 76%, rgba(20,15,10,0.24) 100%);
     }
-    .heroCard::after{ content:""; position:absolute; inset:0; pointer-events:none; background: linear-gradient(180deg, transparent 0%, rgba(24,18,14,0.08) 72%, rgba(24,18,14,0.18) 100%); mix-blend-mode:multiply; }
+    .heroCard::after{ content:""; position:absolute; inset:0; pointer-events:none; background: linear-gradient(180deg, transparent 0%, rgba(20,15,10,0.08) 72%, rgba(20,15,10,0.18) 100%); mix-blend-mode:multiply; }
     
     .heroText { position: absolute; left: 0; right: 0; bottom: 46px; padding: 0 40px; display: flex; justify-content: center; }
     .heroText .title { 
@@ -109,7 +109,7 @@
     .intro-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 28px; margin: 52px 0 18px; animation: fadeUp 0.8s ease-out 0.2s both; align-items: stretch; }
     
     .quote-section { 
-      padding: 44px; background: linear-gradient(135deg, #F8EFE6, #F3E6DA 60%, #EEDFCF 100%); 
+      padding: 44px; background: linear-gradient(135deg, #FFF4EC, #FFE7DA 60%, #FFE1D0 100%); 
       border-radius: 28px; box-shadow: var(--shadow-sm); 
       display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; border: 1px solid rgba(255,123,84,0.14);
     }
@@ -168,13 +168,13 @@
 
     /* 儀表板 (提示框) */
     .hint { 
-      margin-top: 40px; background: linear-gradient(180deg, #FFFDF9, #F8F1EA); 
+      margin-top: 40px; background: linear-gradient(180deg, #FFFFFF, #FFF9F5); 
       border: 1px solid rgba(255,123,84,0.22); border-radius: 28px; 
       padding: 42px; display: none; box-shadow: 0 20px 55px rgba(255,123,84,0.14); position: relative; overflow: hidden; 
     }
     .hint::before { content:''; position:absolute; top:0; left:0; width:100%; height:6px; background: linear-gradient(90deg, var(--primary), var(--danger)); }
     .hint-title { font-size: 26px; font-weight: 900; color: var(--text-main); margin-bottom: 20px; letter-spacing: -0.02em; }
-    .hint-text { font-size: 18px; background: rgba(184,101,60,0.06); padding: 25px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 4px solid var(--primary); font-weight: 500; line-height: 1.9; color: var(--text-main); min-height: 92px; }
+    .hint-text { font-size: 18px; background: rgba(255,123,84,0.06); padding: 25px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 4px solid var(--primary); font-weight: 500; line-height: 1.9; color: var(--text-main); min-height: 92px; }
 
     /* 表格精品化 */
     .table-wrapper { overflow-x: auto; border-radius: 20px; border: 1px solid rgba(234,224,216,0.9); box-shadow: var(--shadow-sm); background: rgba(255,255,255,0.7); }
@@ -282,11 +282,11 @@
 /* ===== 表單進度條（純視覺，不暴露內部運作） ===== */
 .form-stepper{ margin-top:18px; }
 .form-stepper ol{ list-style:none; display:flex; gap:14px; padding:0; margin:0; justify-content:space-between; }
-.form-stepper .step{ flex:1; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 10px; border-radius:999px; background: rgba(255, 123, 84, 0.08); color: var(--text-muted); border: 1px solid rgba(184, 101, 60, 0.14); font-weight:800; font-size:14px; letter-spacing: .2px; }
+.form-stepper .step{ flex:1; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 10px; border-radius:999px; background: rgba(255, 123, 84, 0.08); color: var(--text-muted); border: 1px solid rgba(255, 123, 84, 0.18); font-weight:800; font-size:14px; letter-spacing: .2px; }
 .form-stepper .step .dot{ width:10px; height:10px; border-radius:50%; background: rgba(255, 123, 84, 0.35); box-shadow: 0 0 0 4px rgba(255, 123, 84, 0.10); }
 .form-stepper .step .muted{ font-weight:700; opacity:.75; }
 .form-stepper .step.is-active{ background: rgba(255, 123, 84, 0.16); color: var(--text-main); border-color: rgba(255, 123, 84, 0.30); }
-.form-stepper .step.is-active .dot{ background: var(--primary); box-shadow: 0 0 0 6px rgba(184, 101, 60, 0.14); }
+.form-stepper .step.is-active .dot{ background: var(--primary); box-shadow: 0 0 0 6px rgba(255, 123, 84, 0.18); }
 
 .form-block{ padding-top: 6px; }
 .form-note{ margin-top: 10px; color: var(--text-muted); font-size: 15px; }
