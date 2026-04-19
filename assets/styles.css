@@ -83,36 +83,42 @@
     .hero { margin-top: 30px; animation: fadeUp 0.8s ease-out; }
     .heroCard { 
       position: relative; overflow: hidden; border-radius: var(--radius-xl); 
-      box-shadow: var(--shadow-md); height: 500px; background: #eee; 
+      box-shadow: 0 28px 80px rgba(45, 36, 30, 0.12); height: 540px; background: #eee; 
+      isolation: isolate;
     }
-    .heroCard img { width: 100%; height: 100%; object-fit: cover; transition: transform 8s ease; }
-    .heroCard:hover img { transform: scale(1.05); }
-    .heroOverlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(20, 15, 10, 0.85) 0%, rgba(20, 15, 10, 0) 60%); }
+    .heroCard img { width: 100%; height: 100%; object-fit: cover; object-position: center center; transition: transform 8s ease; filter: saturate(0.94) contrast(1.02); }
+    .heroCard:hover img { transform: scale(1.04); }
+    .heroOverlay { position: absolute; inset: 0; background:
+      linear-gradient(180deg, rgba(20, 15, 10, 0.14) 0%, rgba(20, 15, 10, 0.38) 48%, rgba(20, 15, 10, 0.78) 100%),
+      radial-gradient(circle at 50% 18%, rgba(255,255,255,0.18), transparent 36%),
+      linear-gradient(90deg, rgba(20,15,10,0.24) 0%, rgba(20,15,10,0.04) 24%, rgba(20,15,10,0.04) 76%, rgba(20,15,10,0.24) 100%);
+    }
+    .heroCard::after{ content:""; position:absolute; inset:0; pointer-events:none; background: linear-gradient(180deg, transparent 0%, rgba(20,15,10,0.08) 72%, rgba(20,15,10,0.18) 100%); mix-blend-mode:multiply; }
     
-    .heroText { position: absolute; left: 0; right: 0; bottom: 50px; padding: 0 40px; display: flex; justify-content: center; }
+    .heroText { position: absolute; left: 0; right: 0; bottom: 46px; padding: 0 40px; display: flex; justify-content: center; }
     .heroText .title { 
-      background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-      border-radius: var(--radius-lg); padding: 40px 60px; 
-      box-shadow: var(--shadow-lg); max-width: 900px; text-align: center; 
-      border: 1px solid rgba(255,255,255,0.8);
+      background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(18px);
+      border-radius: 28px; padding: 42px 64px; 
+      box-shadow: 0 24px 70px rgba(45, 36, 30, 0.18); max-width: 860px; text-align: center; 
+      border: 1px solid rgba(255,255,255,0.72);
     }
     .heroText h1 { font-size: 42px; color: var(--text-main); font-weight: 900; line-height: 1.18; margin: 0; letter-spacing: -0.04em; text-wrap: balance; }
     .heroText p { margin-top: 15px; color: var(--text-muted); font-size: 19px; font-weight: 500; max-width: 38ch; margin-left: auto; margin-right: auto; }
 
     /* Bento Grid 介紹區 */
-    .intro-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; margin: 40px 0; animation: fadeUp 0.8s ease-out 0.2s both; }
+    .intro-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 28px; margin: 52px 0 18px; animation: fadeUp 0.8s ease-out 0.2s both; align-items: stretch; }
     
     .quote-section { 
-      padding: 40px; background: linear-gradient(135deg, #FFF0E6, #FFE4D6); 
-      border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); 
-      display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden;
+      padding: 44px; background: linear-gradient(135deg, #FFF4EC, #FFE7DA 60%, #FFE1D0 100%); 
+      border-radius: 28px; box-shadow: var(--shadow-sm); 
+      display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; border: 1px solid rgba(255,123,84,0.14);
     }
     .quote-section::before { content: '”'; position: absolute; top: -20px; right: 20px; font-size: 150px; color: rgba(255,123,84,0.1); font-family: serif; line-height: 1; }
     .quote-text { font-size: 22px; font-weight: 700; color: var(--text-main); line-height: 1.6; z-index: 1; }
     
     .fun-section { 
-      padding: 30px; background: var(--surface); border-radius: var(--radius-lg); 
-      display: flex; align-items: center; gap: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); 
+      padding: 32px; background: rgba(255,255,255,0.82); border-radius: 28px; 
+      display: flex; align-items: center; gap: 24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(234,224,216,0.86); backdrop-filter: blur(8px);
     }
     .fun-image { width: 140px; height: 140px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 4px solid var(--surface-dim); box-shadow: var(--shadow-sm); }
     .fun-image img { width: 100%; height: 100%; object-fit: cover; }
@@ -121,9 +127,9 @@
 
     /* 沉浸式表單區塊 */
     .section { 
-      margin: 40px 0; padding: 60px; background: var(--surface); 
-      border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); 
-      border: 1px solid rgba(255,255,255,0.8); animation: fadeUp 0.8s ease-out 0.4s both; 
+      margin: 48px 0; padding: 64px; background: rgba(255,255,255,0.9); 
+      border-radius: 34px; box-shadow: 0 26px 70px rgba(255, 123, 84, 0.12); 
+      border: 1px solid rgba(255,255,255,0.82); animation: fadeUp 0.8s ease-out 0.4s both; backdrop-filter: blur(10px);
     }
     .section-title { border-bottom: 2px dashed var(--border); padding-bottom: 25px; margin-bottom: 40px; }
     .section-title h2 { font-size: 34px; color: var(--text-main); font-weight: 900; margin-bottom: 8px; letter-spacing: -0.03em; }
@@ -163,16 +169,16 @@
     /* 儀表板 (提示框) */
     .hint { 
       margin-top: 40px; background: linear-gradient(180deg, #FFFFFF, #FFF9F5); 
-      border: 2px solid var(--primary-light); border-radius: var(--radius-lg); 
-      padding: 40px; display: none; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; 
+      border: 1px solid rgba(255,123,84,0.22); border-radius: 28px; 
+      padding: 42px; display: none; box-shadow: 0 20px 55px rgba(255,123,84,0.14); position: relative; overflow: hidden; 
     }
     .hint::before { content:''; position:absolute; top:0; left:0; width:100%; height:6px; background: linear-gradient(90deg, var(--primary), var(--danger)); }
     .hint-title { font-size: 26px; font-weight: 900; color: var(--text-main); margin-bottom: 20px; letter-spacing: -0.02em; }
     .hint-text { font-size: 18px; background: rgba(255,123,84,0.06); padding: 25px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 4px solid var(--primary); font-weight: 500; line-height: 1.9; color: var(--text-main); min-height: 92px; }
 
     /* 表格精品化 */
-    .table-wrapper { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
-    .history-table { width: 100%; border-collapse: collapse; font-size: 17px; background: var(--surface); min-width: 800px; }
+    .table-wrapper { overflow-x: auto; border-radius: 20px; border: 1px solid rgba(234,224,216,0.9); box-shadow: var(--shadow-sm); background: rgba(255,255,255,0.7); }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 17px; background: rgba(255,255,255,0.92); min-width: 800px; }
     .history-table th { background: var(--primary); color: white; padding: 18px 24px; text-align: left; font-weight: 700; white-space: nowrap; }
     .history-table td { padding: 20px 24px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
     .history-table tbody tr:hover { background: #FFF9F5; }
@@ -182,8 +188,8 @@
       cursor: pointer; border-radius: 50px; padding: 22px 45px; font-weight: 900; font-size: 20px; 
       border: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 100%; font-family: inherit; letter-spacing: 1px; 
     }
-    .btnPrimary { background: linear-gradient(135deg, var(--primary), var(--danger)); color: #fff; margin-top: 40px; box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3); }
-    .btnPrimary:hover:not(:disabled) { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4); }
+    .btnPrimary { background: linear-gradient(135deg, var(--primary), var(--danger)); color: #fff; margin-top: 40px; box-shadow: 0 14px 34px rgba(231, 76, 60, 0.28); }
+    .btnPrimary:hover:not(:disabled) { transform: translateY(-4px); box-shadow: 0 20px 42px rgba(231, 76, 60, 0.34); }
     .btnPrimary:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; color: #777; }
     
     .btnSuccess { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
@@ -203,7 +209,7 @@
     .btn-force:hover { color: var(--primary-hover); }
 
     /* 成功頁面 */
-    .success { display: none; text-align: center; padding: 100px 40px; background: var(--surface); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); animation: fadeUp 0.6s ease-out; }
+    .success { display: none; text-align: center; padding: 100px 40px; background: rgba(255,255,255,0.92); border-radius: 34px; box-shadow: 0 26px 70px rgba(255, 123, 84, 0.12); animation: fadeUp 0.6s ease-out; backdrop-filter: blur(10px); }
     .success h3 { font-size: 46px; color: var(--text-main); font-weight: 900; margin: 15px 0; letter-spacing: -0.03em; }
     .success-symbol{ display:inline-flex; align-items:center; justify-content:center; min-width:110px; height:110px; padding:0 20px; border-radius:999px; background: rgba(46, 204, 113, 0.12); color: #1f8f51; font-size: 24px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
 
@@ -248,10 +254,10 @@
   body{ font-size:16px; }
   .container{ width:min(980px, 92vw); }
   .heroCard{ height: 420px; }
-  .heroText{ bottom: 30px; padding: 0 18px; }
-  .heroText .title{ padding: 26px 22px; }
+  .heroText{ bottom: 26px; padding: 0 18px; }
+  .heroText .title{ padding: 28px 22px; border-radius: 24px; }
   .heroText h1{ font-size: 32px; }
-  .heroText p{ font-size: 18px; }
+  .heroText p{ font-size: 18px; max-width: 28ch; }
   .intro-grid{ grid-template-columns: 1fr; }
   .section{ padding: 34px 22px; }
   label{ margin: 22px 0 10px; font-size: 18px; }
@@ -262,7 +268,7 @@
 @media (max-width: 480px){
   .heroCard{ height: 360px; }
   .heroText h1{ font-size: 26px; }
-  .heroText p{ font-size: 16px; }
+  .heroText p{ font-size: 16px; max-width: 24ch; }
   .heroActions{ gap: 10px; }
   .btnHeroCta, .btnHeroGhost{ width: 100%; }
   .section{ padding: 26px 16px; }
