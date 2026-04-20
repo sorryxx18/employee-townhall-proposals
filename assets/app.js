@@ -318,6 +318,7 @@
       try {
         const queryText = String(document.getElementById('suggestion')?.value || '').trim();
         const resp = await postToGas('query', { token: apiToken, query: queryText });
+        const payload = (resp && resp.data && typeof resp.data === 'object') ? resp.data : resp;
 
         // 隱藏 loading
         document.getElementById('loadingOverlay').style.display = 'none';
@@ -326,11 +327,11 @@
         const dupHint = document.getElementById('dupHint');
         dupHint.style.display = 'block';
 
-        document.getElementById('aiSummary').textContent = (resp && resp.summary) ? String(resp.summary) : '';
+        document.getElementById('aiSummary').textContent = (payload && payload.summary) ? String(payload.summary) : '';
 
         // 新舊格式兼容：matches（新版）/ history（舊版）
-        const matches = (resp && Array.isArray(resp.matches)) ? resp.matches : null;
-        const history = (resp && Array.isArray(resp.history)) ? resp.history : null;
+        const matches = (payload && Array.isArray(payload.matches)) ? payload.matches : null;
+        const history = (payload && Array.isArray(payload.history)) ? payload.history : null;
 
         if (matches) renderMatches_(matches);
         else renderHistory_(history || []);
