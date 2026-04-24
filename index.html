@@ -137,6 +137,12 @@
       <!-- 最終確認框 -->
       <div id="finalConfirmCard">
           <div id="finalConfirmTitle" style="font-size:34px; font-weight:900; color:var(--danger); margin-bottom:15px;">最後確認</div>
+          <div id="dangerMeter" style="display:none; margin:0 auto 18px; max-width:420px;">
+            <div style="font-size:13px; font-weight:900; letter-spacing:.18em; color:var(--danger); margin-bottom:8px;">重複提案危險等級</div>
+            <div style="height:18px; border-radius:999px; background:rgba(231,76,60,0.12); overflow:hidden; border:1px solid rgba(231,76,60,0.18);">
+              <div id="dangerMeterBar" style="width:100%; height:100%; background:linear-gradient(90deg,#ffd166 0%,#f77f00 40%,#e63946 75%,#7f0000 100%); box-shadow:0 0 20px rgba(231,76,60,0.35);"></div>
+            </div>
+          </div>
           <p id="finalConfirmText" style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統查詢到相近的歷年提案紀錄。<br>若您確認本次內容仍有新增事證、情境差異或需再次反映，可繼續正式送出。</p>
           <button id="finalCancelBtn" class="btn btn-giveup" onclick="window.location.reload()">我已了解，先不送出</button>
           <div style="margin-top:20px;">

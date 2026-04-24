@@ -222,7 +222,7 @@
         document.getElementById('decisionZone').style.display = 'none';
         document.getElementById('finalConfirmCard').style.display = 'block';
         window.scrollTo({ top: document.getElementById('finalConfirmCard').offsetTop - 80, behavior: 'smooth' });
-              document.body.classList.remove('siren-shake');
+        document.body.classList.remove('siren-shake');
       }, 3200);
     }
 
@@ -356,11 +356,15 @@
       const text = document.getElementById('finalConfirmText');
       const cancelBtn = document.getElementById('finalCancelBtn');
       const confirmBtn = document.getElementById('finalConfirmBtn');
+      const dangerMeter = document.getElementById('dangerMeter');
+      const dangerMeterBar = document.getElementById('dangerMeterBar');
 
       if (title) title.textContent = options.title || '最後確認';
       if (text && message) text.innerHTML = message;
       if (cancelBtn) cancelBtn.textContent = options.cancelLabel || '我已了解，先不送出';
       if (confirmBtn) confirmBtn.textContent = options.confirmLabel || '確認內容仍需反映，正式送出';
+      if (dangerMeter) dangerMeter.style.display = options.showDangerMeter ? 'block' : 'none';
+      if (dangerMeterBar) dangerMeterBar.style.width = options.dangerPercent || '100%';
 
       document.getElementById('finalConfirmCard').style.display = 'block';
       window.scrollTo({ top: document.getElementById('finalConfirmCard').offsetTop - 80, behavior: 'smooth' });
@@ -381,8 +385,8 @@
       setResultTagline('系統判斷本次提案與歷次紀錄高度相近，建議先參考既有辦理情形。');
       showNoveltySection(false);
       setDecisionButtons([
-        { label: '我已了解，先不送出', className: 'btnSuccess', onclick: 'window.location.reload()' },
-        { label: '我有新增情況，進入再次確認', className: 'btnDanger', onclick: 'triggerDuplicateWarning()' }
+        { label: '我已了解，先不送出，拜託不要再響了', className: 'btnSuccess', onclick: 'window.location.reload()' },
+        { label: '我偏要送，啟動高風險再次確認', className: 'btnDanger', onclick: 'triggerDuplicateWarning()' }
       ]);
       applyResultTone('high');
     }
@@ -440,10 +444,12 @@
       const finalText = document.getElementById('finalConfirmText');
       if (dupHint) dupHint.classList.add('duplicate-alert');
       if (summary) summary.classList.add('duplicate-alert-text');
-      openFinalConfirm('系統已判定本次提案與歷次紀錄高度相近。<br>若您確認本次仍有新的具體情況、後續影響或確有再次反映必要，才建議繼續送出。', {
-        title: '高度相似，再次確認',
-        cancelLabel: '我知道了，這次先不送',
-        confirmLabel: '仍要送出，我願意承擔重複風險'
+      openFinalConfirm('⚠️ 系統警報：本案與歷次提案高度相似。<br>⚠️ 若您沒有新的具體情況、後續影響、明確補充事證，現在繼續送出就很像在拿系統開玩笑。<br><br>如果您真的很確定還要闖關，那就請再按一次，硬送出去。', {
+        title: '🚨 高度相似，危險闖關確認 🚨',
+        cancelLabel: '冷靜了，我這次先不送',
+        confirmLabel: '我很確定，硬著頭皮繼續送出',
+        showDangerMeter: true,
+        dangerPercent: '100%'
       });
 
       triggerSirenSequence();
