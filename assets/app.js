@@ -376,13 +376,35 @@
 
       if (title) title.textContent = options.title || '最後確認';
       if (text && message) text.innerHTML = message;
-      if (cancelBtn) cancelBtn.textContent = options.cancelLabel || '我已了解，先不送出';
-      if (confirmBtn) confirmBtn.textContent = options.confirmLabel || '確認內容仍需反映，正式送出';
+      if (cancelBtn) cancelBtn.textContent = options.cancelLabel || '返回前一步';
+      if (confirmBtn) confirmBtn.textContent = options.confirmLabel || '確認送出';
       if (dangerMeter) dangerMeter.style.display = options.showDangerMeter ? 'block' : 'none';
       if (dangerMeterBar) dangerMeterBar.style.width = options.dangerPercent || '100%';
 
       document.getElementById('finalConfirmCard').style.display = 'block';
       window.scrollTo({ top: document.getElementById('finalConfirmCard').offsetTop - 80, behavior: 'smooth' });
+    }
+
+    function closeFinalConfirm() {
+      document.getElementById('finalConfirmCard').style.display = 'none';
+      const zone = document.getElementById('decisionZone');
+      if (zone && zone.innerHTML.trim()) zone.style.display = 'grid';
+      scrollToResultCard();
+    }
+
+    function setLoadingState(mode) {
+      const overlay = document.getElementById('loadingOverlay');
+      const title = document.getElementById('loadingTitle');
+      const subtitle = document.getElementById('loadingSubtitle');
+      if (!overlay || !title || !subtitle) return;
+
+      if (mode === 'submit') {
+        title.textContent = '正在送出提案內容...';
+        subtitle.textContent = '系統正在整理資料與附件，請稍候。';
+      } else {
+        title.textContent = '正在查詢歷次座談會紀錄...';
+        subtitle.textContent = '系統查詢約需 10 到 15 秒，請稍候。';
+      }
     }
 
     function proceedWithSupplementSubmit() {
@@ -400,8 +422,8 @@
       setResultTagline('系統判斷本次提案與歷次紀錄高度相近，建議先參考既有辦理情形。');
       showNoveltySection(false);
       setDecisionButtons([
-        { label: '我已了解，先不送出，拜託不要再響了', className: 'btnSuccess', onclick: 'window.location.reload()' },
-        { label: '我有新情況，但先讓我再看一次', className: 'btnDanger', onclick: 'triggerDuplicateWarning(2)' }
+        { label: '先參考既有辦理情形', className: 'btnSuccess', onclick: 'window.location.reload()' },
+        { label: '我有新情況，進入再次確認', className: 'btnDanger', onclick: 'triggerDuplicateWarning(2)' }
       ]);
       applyResultTone('high');
       triggerDuplicateWarning(1);
@@ -461,13 +483,13 @@
       if (summary) summary.classList.add('duplicate-alert-text');
 
       if (stage === 1) {
-        setResultTagline('⚠️ 系統第一次警告，這題真的很像以前提過，請先冷靜一下。');
+        setResultTagline('系統提醒：本次提案與歷次紀錄高度相近，建議先參考既有辦理情形。');
         triggerMiniWarningSequence();
       } else {
-        openFinalConfirm('⚠️ 系統警報：本案與歷次提案高度相似。<br>⚠️ 若您沒有新的具體情況、後續影響、明確補充事證，現在繼續送出就很像在拿系統開玩笑。<br><br>如果您真的很確定還要闖關，那就請再按一次，硬送出去。', {
-          title: '🚨 高度相似，危險闖關確認 🚨',
-          cancelLabel: '冷靜了，我這次先不送',
-          confirmLabel: '我很確定，硬著頭皮繼續送出',
+        openFinalConfirm('系統再次提醒：本案與歷次提案高度相近。<br>若您確認本次仍有新的具體情況、補充事證，或確有再次反映的必要，請於確認後正式送出。', {
+          title: '高度相似，再次確認',
+          cancelLabel: '返回結果頁再查看',
+          confirmLabel: '確認仍需正式送出',
           showDangerMeter: true,
           dangerPercent: '100%'
         });
@@ -511,26 +533,31 @@
     function showSubmissionSuccess(count) {
       const formSection = document.getElementById('formSection');
       const successBox = document.getElementById('successBox');
+      const successMessage = document.getElementById('successMessage');
+      const successMeta = document.getElementById('successMeta');
       if (!successBox) return;
 
       const level = String(lastAnalysisResult?.duplicateLevel || '').trim().toLowerCase();
       const title = successBox.querySelector('h3');
-      const text = successBox.querySelector('p');
 
       if (title) {
-        title.textContent = level === 'high'
-          ? '已強行闖關送出，系統也收到了'
-          : level === 'medium'
-            ? '提案已送出，補充內容已一併提交'
-            : '提交成功，感謝參與';
+        title.textContent = level === 'medium'
+          ? '提案與補充內容已送出'
+          : '提案已成功送出';
       }
 
-      if (text) {
-        text.textContent = level === 'high'
-          ? `本次提案已正式送出${count > 0 ? `，附件 ${count} 件也已上傳` : ''}。雖然系統先前已強烈提醒高度相似，但仍已依您的決定完成送件。`
+      if (successMessage) {
+        successMessage.textContent = level === 'high'
+          ? '系統已依您的確認完成送件，後續將由相關單位檢視與研議。'
           : level === 'medium'
-            ? `本次提案與補充說明已成功送出${count > 0 ? `，附件 ${count} 件也已上傳` : ''}，後續將由相關單位檢視。`
-            : `您的提案已送出${count > 0 ? `，附件 ${count} 件也已上傳` : ''}，後續將由相關單位進行檢視與研議。`;
+            ? '您的提案與補充說明已一併送出，後續將由相關單位檢視與研議。'
+            : '感謝您的意見回饋，後續將由相關單位檢視與研議。';
+      }
+
+      if (successMeta) {
+        successMeta.textContent = count > 0
+          ? `本次已成功上傳附件 ${count} 件。`
+          : '本次未附帶附件。';
       }
 
       if (formSection) formSection.style.display = 'none';
@@ -552,6 +579,7 @@
       btn.disabled = true;
 
       // 顯示 loading
+      setLoadingState('query');
       document.getElementById('loadingOverlay').style.display = 'flex';
 
       try {
@@ -600,6 +628,7 @@
       }
 
       document.getElementById('finalConfirmCard').style.display = 'none';
+      setLoadingState('submit');
       document.getElementById('loadingOverlay').style.display = 'flex';
 
       try {

@@ -12,8 +12,8 @@
   <!-- 載入中動畫 -->
   <div id="loadingOverlay">
     <div class="spinner"></div>
-    <div style="font-weight:900; font-size:24px; color:var(--text-main); padding:0 20px; text-align:center;">正在查詢歷次座談會紀錄... </div>
-    <div style="color:var(--text-muted); font-size:18px; margin-top:10px;">系統查詢約需 10–15 秒，請稍候</div>
+    <div id="loadingTitle" style="font-weight:900; font-size:24px; color:var(--text-main); padding:0 20px; text-align:center;">正在查詢歷次座談會紀錄...</div>
+    <div id="loadingSubtitle" style="color:var(--text-muted); font-size:18px; margin-top:10px;">系統查詢約需 10 到 15 秒，請稍候。</div>
   </div>
 
   <div id="sirenOverlay"></div>
@@ -144,7 +144,7 @@
             </div>
           </div>
           <p id="finalConfirmText" style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統查詢到相近的歷年提案紀錄。<br>若您確認本次內容仍有新增事證、情境差異或需再次反映，可繼續正式送出。</p>
-          <button id="finalCancelBtn" class="btn btn-giveup" onclick="window.location.reload()">我已了解，先不送出</button>
+          <button id="finalCancelBtn" class="btn btn-giveup" onclick="closeFinalConfirm()">我已了解，先不送出</button>
           <div style="margin-top:20px;">
              <button id="finalConfirmBtn" class="btn btn-force" onclick="finalSave()">確認內容仍需反映，正式送出</button>
           </div>
@@ -153,8 +153,10 @@
 
     <section class="success" id="successBox">
       <div class="success-symbol" aria-hidden="true">完成</div>
-      <h3>提交成功！感謝參與</h3>
-      <p style="font-size:22px; color:var(--text-muted); margin:15px 0 40px;">您的提案已送出，後續將由相關單位進行檢視與研議。</p>
+      <div class="panel-label" style="margin:0 auto 12px;">感謝您的提案</div>
+      <h3>提案已成功送出</h3>
+      <p id="successMessage" style="font-size:22px; color:var(--text-muted); margin:15px 0 28px;">您的提案已送出，後續將由相關單位進行檢視與研議。</p>
+      <div id="successMeta" style="font-size:16px; color:var(--text-main); font-weight:700; margin-bottom:32px;"></div>
       <img src="./1769910482662.jpg" style="width:100%; max-width:600px; border-radius:var(--radius-lg); box-shadow: var(--shadow-lg);">
     </section>
   </main>
