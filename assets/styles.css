@@ -183,6 +183,12 @@
     .hint-title { font-size: 26px; font-weight: 900; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.02em; }
     .hint-subtitle { color: var(--text-main); font-size: 16px; margin-bottom: 20px; line-height: 1.75; font-weight: 700; }
     .hint-text { font-size: 18px; background: rgba(228,119,79,0.08); padding: 25px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 4px solid var(--primary); font-weight: 700; line-height: 1.9; color: var(--text-main); min-height: 92px; white-space: pre-wrap; }
+    .tone-high { border-color: rgba(231, 76, 60, 0.4) !important; background: linear-gradient(180deg, #fff7f6, #ffe7e2) !important; }
+    .tone-medium { border-color: rgba(228, 119, 79, 0.35) !important; background: linear-gradient(180deg, #fffaf6, #fff0e7) !important; }
+    .tone-low { border-color: rgba(46, 204, 113, 0.22) !important; background: linear-gradient(180deg, #ffffff, #f7fff9) !important; }
+    .tone-high-text { color: var(--danger) !important; }
+    .tone-medium-text { color: var(--primary-hover) !important; }
+    .tone-low-text { color: #1f8f51 !important; }
     .duplicate-alert { animation: duplicatePulse 0.35s ease-in-out 0s 8 alternate; box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.16), 0 24px 80px rgba(231, 76, 60, 0.28) !important; border-color: rgba(231, 76, 60, 0.55) !important; }
     .duplicate-alert-text { animation: duplicateTextFlash 0.3s ease-in-out 0s 10 alternate; }
     .decision-zone { margin-top:35px; display:grid; grid-template-columns: 1fr 1fr; gap:20px; }

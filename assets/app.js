@@ -372,6 +372,7 @@
         { label: '我已了解，先不送出', className: 'btnSuccess', onclick: 'window.location.reload()' },
         { label: '我有新增情況，繼續補充送出', className: 'btnDanger', onclick: 'showSupplementFlow()' }
       ]);
+      applyResultTone('high');
       triggerDuplicateWarning();
     }
 
@@ -382,6 +383,7 @@
         { label: '補充完成，正式送出', className: 'btnDanger', onclick: 'proceedWithSupplementSubmit()' },
         { label: '我已了解，先不送出', className: 'btnSuccess', onclick: 'window.location.reload()' }
       ]);
+      applyResultTone('medium');
     }
 
     function renderSubmitDirectly(data) {
@@ -391,6 +393,7 @@
         { label: '正式送出', className: 'btnDanger', onclick: 'finalSave()' },
         { label: '返回修改', className: 'btnSuccess', onclick: 'window.scrollTo({ top: document.getElementById(\'formSection\').offsetTop - 80, behavior: \'smooth\' })' }
       ]);
+      applyResultTone('low');
     }
 
     function showSupplementFlow() {
@@ -402,6 +405,22 @@
         const y = section.getBoundingClientRect().top + window.scrollY - offset;
         window.scrollTo({ top: y, behavior: 'smooth' });
       }
+    }
+
+    function applyResultTone(level) {
+      const dupHint = document.getElementById('dupHint');
+      const summary = document.getElementById('aiSummary');
+      const tagline = document.getElementById('resultTagline');
+      if (!dupHint || !summary) return;
+
+      dupHint.classList.remove('tone-high', 'tone-medium', 'tone-low');
+      summary.classList.remove('tone-high-text', 'tone-medium-text', 'tone-low-text');
+      if (tagline) tagline.classList.remove('tone-high-text', 'tone-medium-text', 'tone-low-text');
+
+      const safeLevel = ['high', 'medium', 'low'].includes(level) ? level : 'low';
+      dupHint.classList.add(`tone-${safeLevel}`);
+      summary.classList.add(`tone-${safeLevel}-text`);
+      if (tagline) tagline.classList.add(`tone-${safeLevel}-text`);
     }
 
     function triggerDuplicateWarning() {
