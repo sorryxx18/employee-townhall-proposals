@@ -97,12 +97,33 @@
     function clearAllErrors() {
       setFieldError(document.getElementById('suggestion'), document.getElementById('suggestionError'), '');
       setFieldError(document.getElementById('evidence'), document.getElementById('evidenceError'), '');
+      setFieldError(document.getElementById('noveltyExplain'), document.getElementById('noveltyExplainError'), '');
       const idErr = document.getElementById('identityError');
       if (idErr) idErr.textContent = '';
       ['dept','jobTitle','userName'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('is-invalid');
       });
+    }
+
+    function validateNoveltyExplain() {
+      const section = document.getElementById('noveltyExplainSection');
+      if (!section || section.style.display === 'none') return true;
+
+      const noveltyExplain = document.getElementById('noveltyExplain');
+      const value = (noveltyExplain?.value || '').trim();
+      if (value) {
+        setFieldError(noveltyExplain, document.getElementById('noveltyExplainError'), '');
+        return true;
+      }
+
+      setFieldError(noveltyExplain, document.getElementById('noveltyExplainError'), '請補充說明本次與歷次提案相比的新增重點。');
+      const topbar = document.querySelector('.topbar');
+      const offset = topbar ? topbar.offsetHeight + 12 : 12;
+      const y = noveltyExplain.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      setTimeout(() => noveltyExplain.focus({ preventScroll: true }), 250);
+      return false;
     }
 
     function validateForm() {
@@ -299,6 +320,105 @@
       `;
     }
 
+    let lastAnalysisResult = null;
+
+    function setResultTagline(text) {
+      const el = document.getElementById('resultTagline');
+      if (!el) return;
+      el.textContent = text || '';
+      el.style.display = text ? 'block' : 'none';
+    }
+
+    function showNoveltySection(show) {
+      const section = document.getElementById('noveltyExplainSection');
+      if (!section) return;
+      section.style.display = show ? 'block' : 'none';
+      if (!show) {
+        const field = document.getElementById('noveltyExplain');
+        if (field) field.value = '';
+        setFieldError(document.getElementById('noveltyExplain'), document.getElementById('noveltyExplainError'), '');
+      }
+    }
+
+    function setDecisionButtons(buttons) {
+      const zone = document.getElementById('decisionZone');
+      if (!zone) return;
+      zone.innerHTML = buttons.map(btn => `<button class="btn ${btn.className}" type="button" onclick="${btn.onclick}">${btn.label}</button>`).join('');
+      zone.style.display = buttons.length ? 'grid' : 'none';
+    }
+
+    function openFinalConfirm(message) {
+      document.getElementById('decisionZone').style.display = 'none';
+      const text = document.getElementById('finalConfirmText');
+      if (text && message) text.innerHTML = message;
+      document.getElementById('finalConfirmCard').style.display = 'block';
+      window.scrollTo({ top: document.getElementById('finalConfirmCard').offsetTop - 80, behavior: 'smooth' });
+    }
+
+    function proceedWithSupplementSubmit() {
+      if (!validateNoveltyExplain()) return;
+      const explain = (document.getElementById('noveltyExplain')?.value || '').trim();
+      openFinalConfirm(`系統查得本次提案與歷次紀錄主題相近。<br>您已補充本次新增重點，若確認仍需反映，請繼續正式送出。`);
+      if (lastAnalysisResult) lastAnalysisResult.noveltyExplain = explain;
+    }
+
+    function renderReviewOnly(data) {
+      setResultTagline('系統判斷本次提案與歷次紀錄高度相近，建議先參考既有辦理情形。');
+      showNoveltySection(false);
+      setDecisionButtons([
+        { label: '我已了解，先不送出', className: 'btnSuccess', onclick: 'window.location.reload()' },
+        { label: '我有新增情況，繼續補充送出', className: 'btnDanger', onclick: 'showSupplementFlow()' }
+      ]);
+    }
+
+    function renderSupplementAndSubmit(data) {
+      setResultTagline('系統查得本次提案與歷次紀錄主題相近，但可能包含新的補充內容。');
+      showNoveltySection(true);
+      setDecisionButtons([
+        { label: '補充完成，正式送出', className: 'btnDanger', onclick: 'proceedWithSupplementSubmit()' },
+        { label: '我已了解，先不送出', className: 'btnSuccess', onclick: 'window.location.reload()' }
+      ]);
+    }
+
+    function renderSubmitDirectly(data) {
+      setResultTagline('系統未查得明顯相近提案，您可直接正式送出。');
+      showNoveltySection(false);
+      setDecisionButtons([
+        { label: '正式送出', className: 'btnDanger', onclick: 'finalSave()' },
+        { label: '返回修改', className: 'btnSuccess', onclick: 'window.scrollTo({ top: document.getElementById(\'formSection\').offsetTop - 80, behavior: \'smooth\' })' }
+      ]);
+    }
+
+    function showSupplementFlow() {
+      renderSupplementAndSubmit(lastAnalysisResult || {});
+      const section = document.getElementById('noveltyExplainSection');
+      if (section) {
+        const topbar = document.querySelector('.topbar');
+        const offset = topbar ? topbar.offsetHeight + 12 : 12;
+        const y = section.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
+
+    window.showSupplementFlow = showSupplementFlow;
+    window.proceedWithSupplementSubmit = proceedWithSupplementSubmit;
+
+    function renderDecisionFlow(payload) {
+      lastAnalysisResult = payload || {};
+      const action = String(payload?.recommendedAction || '').trim();
+      document.getElementById('finalConfirmCard').style.display = 'none';
+
+      if (action === 'review_only') {
+        renderReviewOnly(payload);
+        return;
+      }
+      if (action === 'supplement_and_submit') {
+        renderSupplementAndSubmit(payload);
+        return;
+      }
+      renderSubmitDirectly(payload);
+    }
+
     // 第一階段：查詢歷次紀錄（顯示證據：問題/回答 + 來源列號），再由使用者決定是否送出
     async function handleInitialSubmit() {
       if (!validateForm()) return;
@@ -327,7 +447,7 @@
         const dupHint = document.getElementById('dupHint');
         dupHint.style.display = 'block';
 
-        document.getElementById('aiSummary').textContent = (payload && payload.summary) ? String(payload.summary) : '';
+        document.getElementById('aiSummary').textContent = (payload && (payload.reason || payload.summary)) ? String(payload.reason || payload.summary) : '';
 
         // 新舊格式兼容：matches（新版）/ history（舊版）
         const matches = (payload && Array.isArray(payload.matches)) ? payload.matches : null;
@@ -336,9 +456,7 @@
         if (matches) renderMatches_(matches);
         else renderHistory_(history || []);
 
-        // 顯示「參考/決策」區塊，先不要跳最後確認
-        document.getElementById('decisionZone').style.display = 'grid';
-        document.getElementById('finalConfirmCard').style.display = 'none';
+        renderDecisionFlow(payload || {});
 
         window.scrollTo({ top: dupHint.offsetTop - 80, behavior: 'smooth' });
       } catch (err) {
@@ -351,6 +469,7 @@
 
     // 第二階段：最終存檔（改為 JSON fetch，支援附件）
     async function finalSave() {
+      if (!validateNoveltyExplain()) return;
       const apiToken = (window.__API_TOKEN__ || '').trim();
       if (!apiToken) {
         alert("系統尚未完成設定（API_TOKEN 未填寫）。\n\n請聯絡管理者協助設定後再使用。");
@@ -368,6 +487,10 @@
           userName: document.getElementById('userName')?.value || '',
           suggestion: document.getElementById('suggestion')?.value || '',
           evidence: document.getElementById('evidence')?.value || '',
+          noveltyExplain: document.getElementById('noveltyExplain')?.value || '',
+          duplicateLevel: lastAnalysisResult?.duplicateLevel || '',
+          noveltyLevel: lastAnalysisResult?.noveltyLevel || '',
+          recommendedAction: lastAnalysisResult?.recommendedAction || ''
         };
 
         const attachments = await buildAttachmentPayloads(selectedFiles);

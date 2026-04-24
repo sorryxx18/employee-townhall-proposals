@@ -120,19 +120,24 @@
       <!-- 查詢結果 (預設隱藏) -->
       <div class="hint" id="dupHint">
         <div class="hint-title">歷次座談會相關紀錄查詢結果</div>
+        <div id="resultTagline" class="hint-subtitle"></div>
         <div id="aiSummary" class="hint-text"></div>
         <div class="table-wrapper"><div id="historyTable"></div></div>
-        
-        <div id="decisionZone" style="margin-top:35px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-            <button class="btn btnSuccess" onclick="window.location.reload()">我已了解，先不送出</button>
-            <button class="btn btnDanger" onclick="triggerSirenSequence()">仍需反映，繼續送出</button>
+
+        <div id="noveltyExplainSection" class="novelty-section" style="display:none;">
+          <label>與歷次提案相比，本次新增重點為何？ <span class="required">*</span></label>
+          <p class="field-tip">請簡要說明本次新增的事證、情境差異、受影響範圍，或您要補充的具體內容。</p>
+          <textarea id="noveltyExplain" rows="4" placeholder="例如：本次新增了近期實際影響情形、最新數據、照片佐證或前次提案未改善的後續結果。"></textarea>
+          <div class="field-error" id="noveltyExplainError" role="alert" aria-live="polite"></div>
         </div>
+        
+        <div id="decisionZone" class="decision-zone"></div>
       </div>
 
       <!-- 最終確認框 -->
       <div id="finalConfirmCard">
           <div style="font-size:34px; font-weight:900; color:var(--danger); margin-bottom:15px;">最後確認</div>
-          <p style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統查詢到相近的歷年提案紀錄。<br>若您確認本次內容仍有新增事證、情境差異或需再次反映，可繼續正式送出。</p>
+          <p id="finalConfirmText" style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統查詢到相近的歷年提案紀錄。<br>若您確認本次內容仍有新增事證、情境差異或需再次反映，可繼續正式送出。</p>
           <button class="btn btn-giveup" onclick="window.location.reload()">我已了解，先不送出</button>
           <div style="margin-top:20px;">
              <button class="btn btn-force" onclick="finalSave()">確認內容仍需反映，正式送出</button>
