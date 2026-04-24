@@ -370,10 +370,9 @@
       showNoveltySection(false);
       setDecisionButtons([
         { label: '我已了解，先不送出', className: 'btnSuccess', onclick: 'window.location.reload()' },
-        { label: '我有新增情況，繼續補充送出', className: 'btnDanger', onclick: 'showSupplementFlow()' }
+        { label: '我有新增情況，進入再次確認', className: 'btnDanger', onclick: 'triggerDuplicateWarning()' }
       ]);
       applyResultTone('high');
-      triggerDuplicateWarning();
     }
 
     function renderSupplementAndSubmit(data) {
@@ -426,8 +425,12 @@
     function triggerDuplicateWarning() {
       const dupHint = document.getElementById('dupHint');
       const summary = document.getElementById('aiSummary');
+      const finalText = document.getElementById('finalConfirmText');
       if (dupHint) dupHint.classList.add('duplicate-alert');
       if (summary) summary.classList.add('duplicate-alert-text');
+      if (finalText) {
+        finalText.innerHTML = '系統已判定本次提案與歷次紀錄高度相近。<br>若您確認本次仍有新的具體情況、後續影響或確有再次反映必要，才建議繼續送出。';
+      }
 
       triggerSirenSequence();
 
