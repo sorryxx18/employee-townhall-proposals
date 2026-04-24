@@ -508,6 +508,36 @@
       window.scrollTo({ top: Math.max(y, 0), behavior: 'smooth' });
     }
 
+    function showSubmissionSuccess(count) {
+      const formSection = document.getElementById('formSection');
+      const successBox = document.getElementById('successBox');
+      if (!successBox) return;
+
+      const level = String(lastAnalysisResult?.duplicateLevel || '').trim().toLowerCase();
+      const title = successBox.querySelector('h3');
+      const text = successBox.querySelector('p');
+
+      if (title) {
+        title.textContent = level === 'high'
+          ? '已強行闖關送出，系統也收到了'
+          : level === 'medium'
+            ? '提案已送出，補充內容已一併提交'
+            : '提交成功，感謝參與';
+      }
+
+      if (text) {
+        text.textContent = level === 'high'
+          ? `本次提案已正式送出${count > 0 ? `，附件 ${count} 件也已上傳` : ''}。雖然系統先前已強烈提醒高度相似，但仍已依您的決定完成送件。`
+          : level === 'medium'
+            ? `本次提案與補充說明已成功送出${count > 0 ? `，附件 ${count} 件也已上傳` : ''}，後續將由相關單位檢視。`
+            : `您的提案已送出${count > 0 ? `，附件 ${count} 件也已上傳` : ''}，後續將由相關單位進行檢視與研議。`;
+      }
+
+      if (formSection) formSection.style.display = 'none';
+      successBox.style.display = 'block';
+      successBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     // 第一階段：查詢歷次紀錄（顯示證據：問題/回答 + 來源列號），再由使用者決定是否送出
     async function handleInitialSubmit() {
       if (!validateForm()) return;
@@ -603,8 +633,7 @@
           ? resp.data.attachmentCount
           : attachments.length;
 
-        alert(count > 0 ? `提案已送出，附件 ${count} 件已上傳。` : '提案已送出。');
-        window.location.reload();
+        showSubmissionSuccess(count);
       } catch (err) {
         console.error(err);
         document.getElementById('loadingOverlay').style.display = 'none';
