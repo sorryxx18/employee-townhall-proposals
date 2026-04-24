@@ -271,16 +271,19 @@
       }
 
       wrap.innerHTML = matches.slice(0, 5).map(m => {
-        const tab = m.sheetTab || m.tab || '重點摘要';
-        const row = m.rowIndex ?? m.row ?? '';
-        const score = (m.score !== undefined && m.score !== null) ? `（相似度：${escapeHtml_(m.score)}）` : '';
-        const evidence = escapeHtml_(m.evidence || '')
-          .replace(/\n/g, '<br>');
+        const title = m.title || m.proposal || m.topic || '相近提案';
+        const year = m.year || m.date || '未標示年度';
+        const department = m.department || m.dept || m.unit || '未標示單位';
+        const status = m.status || m.result || m.progress || '未標示辦理情形';
+        const similarity = m.similarity || m.score || 'medium';
+        const summary = escapeHtml_(m.summary || m.conclusion || m.detail || '');
+        const id = m.id ? `｜編號 ${escapeHtml_(m.id)}` : '';
 
         return `
-          <div style="padding:14px; border:1px solid var(--border); border-radius:12px; margin:10px 0; background:rgba(255,255,255,0.75);">
-            <div style="font-weight:900; margin-bottom:8px; color:var(--deep-brown);">${escapeHtml_(tab)}｜第 ${escapeHtml_(row)} 列 ${score}</div>
-            <div style="font-size:15px; line-height:1.6; color:var(--text-main);">${evidence}</div>
+          <div style="padding:16px; border:1px solid var(--border); border-radius:16px; margin:12px 0; background:rgba(255,255,255,0.9); box-shadow:var(--shadow-sm);">
+            <div style="font-weight:900; margin-bottom:8px; color:var(--deep-brown);">${escapeHtml_(title)}${id}</div>
+            <div style="font-size:14px; color:var(--text-muted); margin-bottom:10px;">${escapeHtml_(year)}｜${escapeHtml_(department)}｜相似度 ${escapeHtml_(similarity)}｜${escapeHtml_(status)}</div>
+            <div style="font-size:15px; line-height:1.75; color:var(--text-main);">${summary || '系統已判定為相近提案，但目前未提供摘要內容。'}</div>
           </div>
         `;
       }).join('');
@@ -419,6 +422,15 @@
       renderSubmitDirectly(payload);
     }
 
+    function scrollToResultCard() {
+      const dupHint = document.getElementById('dupHint');
+      if (!dupHint) return;
+      const topbar = document.querySelector('.topbar');
+      const offset = topbar ? topbar.offsetHeight + 16 : 16;
+      const y = dupHint.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: Math.max(y, 0), behavior: 'smooth' });
+    }
+
     // 第一階段：查詢歷次紀錄（顯示證據：問題/回答 + 來源列號），再由使用者決定是否送出
     async function handleInitialSubmit() {
       if (!validateForm()) return;
@@ -436,7 +448,9 @@
       document.getElementById('loadingOverlay').style.display = 'flex';
 
       try {
-        const queryText = String(document.getElementById('suggestion')?.value || '').trim();
+        const suggestionText = String(document.getElementById('suggestion')?.value || '').trim();
+        const evidenceText = String(document.getElementById('evidence')?.value || '').trim();
+        const queryText = [suggestionText, evidenceText].filter(Boolean).join('\n\n');
         const resp = await postToGas('query', { token: apiToken, query: queryText });
         const payload = (resp && resp.data && typeof resp.data === 'object') ? resp.data : resp;
 
@@ -447,7 +461,7 @@
         const dupHint = document.getElementById('dupHint');
         dupHint.style.display = 'block';
 
-        document.getElementById('aiSummary').textContent = (payload && (payload.reason || payload.summary)) ? String(payload.reason || payload.summary) : '';
+        document.getElementById('aiSummary').textContent = (payload && (payload.reason || payload.summary || payload.rawDetail)) ? String(payload.reason || payload.summary || payload.rawDetail) : '目前未取得摘要，請先參考下方比對結果。';
 
         // 新舊格式兼容：matches（新版）/ history（舊版）
         const matches = (payload && Array.isArray(payload.matches)) ? payload.matches : null;
@@ -458,7 +472,9 @@
 
         renderDecisionFlow(payload || {});
 
-        window.scrollTo({ top: dupHint.offsetTop - 80, behavior: 'smooth' });
+        requestAnimationFrame(() => {
+          setTimeout(scrollToResultCard, 60);
+        });
       } catch (err) {
         console.error(err);
         document.getElementById('loadingOverlay').style.display = 'none';

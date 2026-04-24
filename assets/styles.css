@@ -176,12 +176,13 @@
       margin-top: 40px; background: linear-gradient(180deg, #FFFFFF, #FFF9F5); 
       border: 1px solid rgba(255,123,84,0.22); border-radius: 30px; 
       padding: 42px; display: none; box-shadow: 0 20px 55px rgba(255,123,84,0.14); position: relative; overflow: hidden; 
+      scroll-margin-top: 96px;
     }
     .hint::before { content:''; position:absolute; top:0; left:0; width:100%; height:6px; background: linear-gradient(90deg, var(--primary), var(--danger)); }
     .hint::after { content:''; position:absolute; inset:auto -40px -40px auto; width:160px; height:160px; border-radius:50%; background:radial-gradient(circle, rgba(228,119,79,0.14), transparent 70%); pointer-events:none; }
     .hint-title { font-size: 26px; font-weight: 900; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.02em; }
-    .hint-subtitle { color: var(--text-muted); font-size: 16px; margin-bottom: 20px; line-height: 1.75; }
-    .hint-text { font-size: 18px; background: rgba(228,119,79,0.06); padding: 25px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 4px solid var(--primary); font-weight: 500; line-height: 1.9; color: var(--text-main); min-height: 92px; }
+    .hint-subtitle { color: var(--text-main); font-size: 16px; margin-bottom: 20px; line-height: 1.75; font-weight: 700; }
+    .hint-text { font-size: 18px; background: rgba(228,119,79,0.08); padding: 25px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 4px solid var(--primary); font-weight: 700; line-height: 1.9; color: var(--text-main); min-height: 92px; white-space: pre-wrap; }
     .decision-zone { margin-top:35px; display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
     .novelty-section { margin-top: 28px; padding: 28px; border-radius: var(--radius-lg); background: rgba(63, 98, 122, 0.06); border: 1px solid rgba(63, 98, 122, 0.14); }
     .novelty-section label { margin-top: 0; }
