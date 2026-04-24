@@ -206,6 +206,21 @@
       osc.stop(now + 1.95);
     }
 
+    function triggerMiniWarningSequence() {
+      const overlay = document.getElementById('sirenOverlay');
+      overlay.classList.add('siren-active');
+      document.body.classList.add('siren-shake');
+
+      const sirenTimes = [0, 550];
+      sirenTimes.forEach((t) => setTimeout(playFireSiren, t));
+
+      setTimeout(() => {
+        overlay.classList.remove('siren-active');
+        document.body.classList.remove('siren-shake');
+        scrollToResultCard();
+      }, 1400);
+    }
+
     // 觸發紅藍閃爍與音效
     function triggerSirenSequence() {
       const overlay = document.getElementById('sirenOverlay');
@@ -386,9 +401,10 @@
       showNoveltySection(false);
       setDecisionButtons([
         { label: '我已了解，先不送出，拜託不要再響了', className: 'btnSuccess', onclick: 'window.location.reload()' },
-        { label: '我偏要送，啟動高風險再次確認', className: 'btnDanger', onclick: 'triggerDuplicateWarning()' }
+        { label: '我有新情況，但先讓我再看一次', className: 'btnDanger', onclick: 'triggerDuplicateWarning(2)' }
       ]);
       applyResultTone('high');
+      triggerDuplicateWarning(1);
     }
 
     function renderSupplementAndSubmit(data) {
@@ -438,26 +454,30 @@
       if (tagline) tagline.classList.add(`tone-${safeLevel}-text`);
     }
 
-    function triggerDuplicateWarning() {
+    function triggerDuplicateWarning(stage = 2) {
       const dupHint = document.getElementById('dupHint');
       const summary = document.getElementById('aiSummary');
-      const finalText = document.getElementById('finalConfirmText');
       if (dupHint) dupHint.classList.add('duplicate-alert');
       if (summary) summary.classList.add('duplicate-alert-text');
-      openFinalConfirm('⚠️ 系統警報：本案與歷次提案高度相似。<br>⚠️ 若您沒有新的具體情況、後續影響、明確補充事證，現在繼續送出就很像在拿系統開玩笑。<br><br>如果您真的很確定還要闖關，那就請再按一次，硬送出去。', {
-        title: '🚨 高度相似，危險闖關確認 🚨',
-        cancelLabel: '冷靜了，我這次先不送',
-        confirmLabel: '我很確定，硬著頭皮繼續送出',
-        showDangerMeter: true,
-        dangerPercent: '100%'
-      });
 
-      triggerSirenSequence();
+      if (stage === 1) {
+        setResultTagline('⚠️ 系統第一次警告，這題真的很像以前提過，請先冷靜一下。');
+        triggerMiniWarningSequence();
+      } else {
+        openFinalConfirm('⚠️ 系統警報：本案與歷次提案高度相似。<br>⚠️ 若您沒有新的具體情況、後續影響、明確補充事證，現在繼續送出就很像在拿系統開玩笑。<br><br>如果您真的很確定還要闖關，那就請再按一次，硬送出去。', {
+          title: '🚨 高度相似，危險闖關確認 🚨',
+          cancelLabel: '冷靜了，我這次先不送',
+          confirmLabel: '我很確定，硬著頭皮繼續送出',
+          showDangerMeter: true,
+          dangerPercent: '100%'
+        });
+        triggerSirenSequence();
+      }
 
       setTimeout(() => {
         if (dupHint) dupHint.classList.remove('duplicate-alert');
         if (summary) summary.classList.remove('duplicate-alert-text');
-      }, 3600);
+      }, stage === 1 ? 1800 : 3600);
     }
 
     window.showSupplementFlow = showSupplementFlow;
