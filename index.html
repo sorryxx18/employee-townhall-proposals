@@ -136,11 +136,11 @@
 
       <!-- 最終確認框 -->
       <div id="finalConfirmCard">
-          <div style="font-size:34px; font-weight:900; color:var(--danger); margin-bottom:15px;">最後確認</div>
+          <div id="finalConfirmTitle" style="font-size:34px; font-weight:900; color:var(--danger); margin-bottom:15px;">最後確認</div>
           <p id="finalConfirmText" style="font-size:20px; margin-bottom:35px; color:var(--text-main); font-weight:500;">系統查詢到相近的歷年提案紀錄。<br>若您確認本次內容仍有新增事證、情境差異或需再次反映，可繼續正式送出。</p>
-          <button class="btn btn-giveup" onclick="window.location.reload()">我已了解，先不送出</button>
+          <button id="finalCancelBtn" class="btn btn-giveup" onclick="window.location.reload()">我已了解，先不送出</button>
           <div style="margin-top:20px;">
-             <button class="btn btn-force" onclick="finalSave()">確認內容仍需反映，正式送出</button>
+             <button id="finalConfirmBtn" class="btn btn-force" onclick="finalSave()">確認內容仍需反映，正式送出</button>
           </div>
       </div>
     </section>

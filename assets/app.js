@@ -350,10 +350,18 @@
       zone.style.display = buttons.length ? 'grid' : 'none';
     }
 
-    function openFinalConfirm(message) {
+    function openFinalConfirm(message, options = {}) {
       document.getElementById('decisionZone').style.display = 'none';
+      const title = document.getElementById('finalConfirmTitle');
       const text = document.getElementById('finalConfirmText');
+      const cancelBtn = document.getElementById('finalCancelBtn');
+      const confirmBtn = document.getElementById('finalConfirmBtn');
+
+      if (title) title.textContent = options.title || '最後確認';
       if (text && message) text.innerHTML = message;
+      if (cancelBtn) cancelBtn.textContent = options.cancelLabel || '我已了解，先不送出';
+      if (confirmBtn) confirmBtn.textContent = options.confirmLabel || '確認內容仍需反映，正式送出';
+
       document.getElementById('finalConfirmCard').style.display = 'block';
       window.scrollTo({ top: document.getElementById('finalConfirmCard').offsetTop - 80, behavior: 'smooth' });
     }
@@ -361,7 +369,11 @@
     function proceedWithSupplementSubmit() {
       if (!validateNoveltyExplain()) return;
       const explain = (document.getElementById('noveltyExplain')?.value || '').trim();
-      openFinalConfirm(`系統查得本次提案與歷次紀錄主題相近。<br>您已補充本次新增重點，若確認仍需反映，請繼續正式送出。`);
+      openFinalConfirm(`系統查得本次提案與歷次紀錄主題相近。<br>您已補充本次新增重點，若確認仍需反映，請繼續正式送出。`, {
+        title: '送出前確認',
+        cancelLabel: '返回修改',
+        confirmLabel: '確認補充完成，正式送出'
+      });
       if (lastAnalysisResult) lastAnalysisResult.noveltyExplain = explain;
     }
 
@@ -428,9 +440,11 @@
       const finalText = document.getElementById('finalConfirmText');
       if (dupHint) dupHint.classList.add('duplicate-alert');
       if (summary) summary.classList.add('duplicate-alert-text');
-      if (finalText) {
-        finalText.innerHTML = '系統已判定本次提案與歷次紀錄高度相近。<br>若您確認本次仍有新的具體情況、後續影響或確有再次反映必要，才建議繼續送出。';
-      }
+      openFinalConfirm('系統已判定本次提案與歷次紀錄高度相近。<br>若您確認本次仍有新的具體情況、後續影響或確有再次反映必要，才建議繼續送出。', {
+        title: '高度相似，再次確認',
+        cancelLabel: '我知道了，這次先不送',
+        confirmLabel: '仍要送出，我願意承擔重複風險'
+      });
 
       triggerSirenSequence();
 
