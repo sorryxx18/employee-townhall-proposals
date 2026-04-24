@@ -372,6 +372,7 @@
         { label: '我已了解，先不送出', className: 'btnSuccess', onclick: 'window.location.reload()' },
         { label: '我有新增情況，繼續補充送出', className: 'btnDanger', onclick: 'showSupplementFlow()' }
       ]);
+      triggerDuplicateWarning();
     }
 
     function renderSupplementAndSubmit(data) {
@@ -401,6 +402,20 @@
         const y = section.getBoundingClientRect().top + window.scrollY - offset;
         window.scrollTo({ top: y, behavior: 'smooth' });
       }
+    }
+
+    function triggerDuplicateWarning() {
+      const dupHint = document.getElementById('dupHint');
+      const summary = document.getElementById('aiSummary');
+      if (dupHint) dupHint.classList.add('duplicate-alert');
+      if (summary) summary.classList.add('duplicate-alert-text');
+
+      triggerSirenSequence();
+
+      setTimeout(() => {
+        if (dupHint) dupHint.classList.remove('duplicate-alert');
+        if (summary) summary.classList.remove('duplicate-alert-text');
+      }, 3600);
     }
 
     window.showSupplementFlow = showSupplementFlow;

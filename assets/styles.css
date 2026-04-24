@@ -183,6 +183,8 @@
     .hint-title { font-size: 26px; font-weight: 900; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.02em; }
     .hint-subtitle { color: var(--text-main); font-size: 16px; margin-bottom: 20px; line-height: 1.75; font-weight: 700; }
     .hint-text { font-size: 18px; background: rgba(228,119,79,0.08); padding: 25px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 4px solid var(--primary); font-weight: 700; line-height: 1.9; color: var(--text-main); min-height: 92px; white-space: pre-wrap; }
+    .duplicate-alert { animation: duplicatePulse 0.35s ease-in-out 0s 8 alternate; box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.16), 0 24px 80px rgba(231, 76, 60, 0.28) !important; border-color: rgba(231, 76, 60, 0.55) !important; }
+    .duplicate-alert-text { animation: duplicateTextFlash 0.3s ease-in-out 0s 10 alternate; }
     .decision-zone { margin-top:35px; display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
     .novelty-section { margin-top: 28px; padding: 28px; border-radius: var(--radius-lg); background: rgba(63, 98, 122, 0.06); border: 1px solid rgba(63, 98, 122, 0.14); }
     .novelty-section label { margin-top: 0; }
@@ -231,6 +233,14 @@
     
     @keyframes spin { 100% { transform: rotate(360deg); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes duplicatePulse {
+      from { transform: scale(1); background: linear-gradient(180deg, #FFFFFF, #FFF9F5); }
+      to { transform: scale(1.01); background: linear-gradient(180deg, #fff4f2, #ffe3dc); }
+    }
+    @keyframes duplicateTextFlash {
+      from { color: var(--text-main); }
+      to { color: var(--danger); }
+    }
 
     /* RWD 手機版極致優化 (卡片化表格) */
     @media (max-width: 768px) {
