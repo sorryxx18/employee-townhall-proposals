@@ -98,6 +98,7 @@
       setFieldError(document.getElementById('suggestion'), document.getElementById('suggestionError'), '');
       setFieldError(document.getElementById('evidence'), document.getElementById('evidenceError'), '');
       setFieldError(document.getElementById('noveltyExplain'), document.getElementById('noveltyExplainError'), '');
+      setFieldError(document.getElementById('responsibleDept'), document.getElementById('responsibleDeptError'), '');
       const idErr = document.getElementById('identityError');
       if (idErr) idErr.textContent = '';
       ['dept','jobTitle','userName'].forEach(id => {
@@ -137,6 +138,7 @@
       const userName = document.getElementById('userName');
       const suggestion = document.getElementById('suggestion');
       const evidence = document.getElementById('evidence');
+      const responsibleDept = document.getElementById('responsibleDept');
 
       let firstBad = null;
 
@@ -163,6 +165,12 @@
       if (!e) {
         setFieldError(evidence, document.getElementById('evidenceError'), '請填寫「具體事證 / 建議方案」。');
         firstBad = firstBad || evidence;
+      }
+
+      const rd = (responsibleDept?.value || '').trim();
+      if (!rd) {
+        setFieldError(responsibleDept, document.getElementById('responsibleDeptError'), '請選擇建議權責科室。');
+        firstBad = firstBad || responsibleDept;
       }
 
       if (firstBad) {
@@ -639,6 +647,7 @@
           userName: document.getElementById('userName')?.value || '',
           suggestion: document.getElementById('suggestion')?.value || '',
           evidence: document.getElementById('evidence')?.value || '',
+          responsibleDept: document.getElementById('responsibleDept')?.value || '',
           noveltyExplain: document.getElementById('noveltyExplain')?.value || '',
           duplicateLevel: lastAnalysisResult?.duplicateLevel || '',
           noveltyLevel: lastAnalysisResult?.noveltyLevel || '',
