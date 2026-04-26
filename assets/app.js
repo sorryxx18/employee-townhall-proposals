@@ -606,6 +606,18 @@
 
         document.getElementById('aiSummary').textContent = (payload && (payload.reason || payload.summary || payload.rawDetail)) ? String(payload.reason || payload.summary || payload.rawDetail) : '目前未取得摘要，請先參考下方比對結果。';
 
+        const maintenanceText = '系統維護中，請 10 分鐘之後再上傳您寶貴的意見。';
+        if ((payload?.summary || '') === maintenanceText) {
+          document.getElementById('historyTable').innerHTML = '';
+          showNoveltySection(false);
+          setDecisionButtons([]);
+          setResultTagline('系統維護通知');
+          requestAnimationFrame(() => {
+            setTimeout(scrollToResultCard, 60);
+          });
+          return;
+        }
+
         // 新舊格式兼容：matches（新版）/ history（舊版）
         const matches = (payload && Array.isArray(payload.matches)) ? payload.matches : null;
         const history = (payload && Array.isArray(payload.history)) ? payload.history : null;
